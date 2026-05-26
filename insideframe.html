@@ -1,0 +1,3500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insideframe.av</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2433;
+    --bg4: #252d3d;
+    --orange: #f05a1a;
+    --orange2: #d94e14;
+    --purple: #7c3aed;
+    --border: #2a3347;
+    --text: #ffffff;
+    --text2: #8b9cb8;
+    --text3: #b0bdd0;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --yellow: #f59e0b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Manrope',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  .page { display:none; min-height:100vh; flex-direction:column; }
+  .page.active { display:flex; }
+
+  /* NAV */
+  nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 32px; background:var(--bg); border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:100;
+  }
+  .logo { display:flex; align-items:center; gap:10px; cursor:pointer; text-decoration:none; }
+  .logo-icon { width:32px; height:32px; background:var(--orange); border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; color:#fff; }
+  .logo-text { font-size:16px; font-weight:700; color:#fff; }
+  .logo-text span { color:var(--orange); }
+  .nav-links { display:flex; align-items:center; gap:26px; }
+  .nav-links a { color:var(--text3); text-decoration:none; font-size:14px; font-weight:500; cursor:pointer; transition:.2s; }
+  .nav-links a:hover { color:#fff; }
+  .nav-links .ai-link { color:#a78bfa; }
+  .nav-links .admin-link { color:var(--yellow); }
+  .btn-orange { background:var(--orange); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:.2s; }
+  .btn-orange:hover { background:var(--orange2); }
+
+  /* AUTH */
+  .auth-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 20px; }
+  .auth-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:40px 36px; width:100%; max-width:420px; }
+  .auth-card.wide { max-width:500px; }
+  .auth-logo { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:22px; }
+  .auth-logo-icon { width:36px; height:36px; background:var(--orange); border-radius:9px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; }
+  .auth-logo-text { font-size:17px; font-weight:700; }
+  .auth-logo-text span { color:var(--orange); }
+  .auth-title { text-align:center; font-size:26px; font-weight:800; margin-bottom:6px; }
+  .auth-sub { text-align:center; color:var(--text2); font-size:14px; margin-bottom:28px; }
+  .form-label { font-size:13px; font-weight:500; color:var(--text3); margin-bottom:6px; display:block; }
+  .form-label.orange { color:var(--orange); font-weight:700; }
+  .form-input { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:9px; padding:12px 14px; color:#fff; font-size:14px; font-family:inherit; outline:none; transition:.2s; }
+  .form-input:focus { border-color:var(--orange); }
+  .form-input::placeholder { color:var(--text2); }
+  .form-group { margin-bottom:16px; }
+  .input-wrap { position:relative; }
+  /* eye icon */
+  .input-wrap .eye {
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    color:var(--text2); cursor:pointer; font-size:15px; user-select:none;
+    transition:.15s; line-height:1;
+  }
+  .input-wrap .eye:hover { color:#fff; }
+  .input-wrap .eye.visible { color:var(--orange); }
+
+  /* country code selector */
+  .country-select-wrap { position:relative; flex-shrink:0; }
+  .country-sel {
+    background:var(--bg3); border:1px solid var(--border); border-radius:9px;
+    padding:10px 8px; color:#fff; font-size:13px; font-family:inherit;
+    outline:none; cursor:pointer; appearance:none; height:100%;
+    min-width:90px; text-align:center; transition:.2s;
+  }
+  .country-sel:focus { border-color:var(--orange); }
+  .country-sel option { background:var(--bg2); font-size:13px; }
+  .phone-row { display:flex; gap:8px; align-items:stretch; }
+  .btn-full { width:100%; background:var(--orange); color:#fff; border:none; border-radius:9px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:.2s; margin-top:4px; }
+  .btn-full:hover { background:var(--orange2); }
+  .auth-foot { text-align:center; font-size:13px; color:var(--text2); margin-top:16px; }
+  .auth-foot a { color:var(--orange); text-decoration:none; font-weight:600; cursor:pointer; }
+  .divider { display:flex; align-items:center; gap:12px; margin:20px 0; color:var(--text2); font-size:12px; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .btn-google { width:100%; background:#fff; color:#333; border:none; border-radius:9px; padding:13px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px; transition:.2s; }
+  .btn-google:hover { background:#f0f0f0; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .phone-row { display:flex; gap:8px; }
+  .phone-code { background:var(--bg3); border:1px solid var(--border); border-radius:9px; padding:12px 14px; color:#fff; font-size:14px; min-width:58px; text-align:center; }
+  .role-btns { display:flex; gap:10px; }
+  .role-btn { flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:9px; padding:12px 8px; color:var(--text3); font-size:12px; font-weight:600; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px; transition:.2s; font-family:inherit; }
+  .role-btn.active { background:var(--orange); border-color:var(--orange); color:#fff; }
+  .role-btn:hover:not(.active) { border-color:var(--orange); }
+
+  /* OTP */
+  .otp-box {
+    background:rgba(240,90,26,.07); border:1px solid rgba(240,90,26,.35);
+    border-radius:10px; padding:16px 18px; margin-bottom:22px;
+  }
+  .otp-info-banner {
+    display:flex; align-items:flex-start; gap:10px;
+    background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.25);
+    border-radius:9px; padding:12px 14px; margin-bottom:20px;
+  }
+  .otp-info-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+  .otp-info-text { font-size:12px; color:var(--text3); line-height:1.5; }
+  .otp-info-text strong { color:#93c5fd; }
+  /* Single-row digit display — nowrap + overflow hidden */
+  .otp-digits {
+    background:#000; border-radius:8px; padding:12px 10px;
+    font-size:28px; font-weight:800; letter-spacing:6px;
+    color:var(--orange); text-align:center; font-family:'Courier New',monospace;
+    white-space:nowrap; overflow:hidden; width:100%;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .otp-digit-char {
+    display:inline-block; width:28px; text-align:center;
+    flex-shrink:0;
+  }
+  /* 6 input boxes — fixed width, no overflow */
+  .otp-inputs {
+    display:grid; grid-template-columns:repeat(6,1fr); gap:8px;
+    margin-bottom:20px; width:100%;
+  }
+  .otp-input {
+    width:100%; aspect-ratio:1; min-width:0;
+    background:var(--bg3); border:1.5px solid var(--border); border-radius:9px;
+    color:#fff; font-size:20px; font-weight:700; text-align:center;
+    outline:none; font-family:inherit; transition:.2s; caret-color:var(--orange);
+  }
+  .otp-input:focus  { border-color:var(--orange); background:rgba(240,90,26,.06); }
+  .otp-input.filled { border-color:rgba(240,90,26,.5); }
+  .otp-input.error  { border-color:#ef4444; background:rgba(239,68,68,.06); animation:shake .3s ease; }
+  @keyframes shake {
+    0%,100%{ transform:translateX(0) } 25%{ transform:translateX(-4px) } 75%{ transform:translateX(4px) }
+  }
+  .resend { text-align:center; font-size:13px; color:var(--text2); margin-top:14px; }
+  .resend-timer { color:var(--text2); }
+  .resend-link  { color:var(--orange); cursor:pointer; font-weight:600; text-decoration:underline; }
+  .back-otp { text-align:center; font-size:13px; color:var(--text2); margin-top:10px; cursor:pointer; }
+  .back-otp:hover { color:#fff; }
+
+  /* MAIN */
+  .main-content { flex:1; padding:36px 32px; }
+
+  /* HOME HERO */
+  .hero { text-align:center; padding:60px 20px 48px; }
+  .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(240,90,26,.12); border:1px solid rgba(240,90,26,.3); border-radius:50px; padding:6px 16px; font-size:13px; color:var(--orange); margin-bottom:24px; }
+  .hero h1 { font-size:56px; font-weight:800; line-height:1.1; margin-bottom:16px; }
+  .hero h1 span { color:var(--orange); }
+  .hero p { color:var(--text2); font-size:16px; margin-bottom:32px; }
+  .hero-btns { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
+  .btn-primary { background:var(--orange); color:#fff; border:none; border-radius:9px; padding:13px 24px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:8px; transition:.2s; }
+  .btn-primary:hover { background:var(--orange2); }
+  .btn-secondary { background:transparent; color:#fff; border:1px solid var(--border); border-radius:9px; padding:13px 24px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:8px; transition:.2s; }
+  .btn-secondary:hover { border-color:#fff; }
+  .section-title { font-size:20px; font-weight:800; margin-bottom:18px; }
+  .assets-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .asset-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; cursor:pointer; transition:.2s; }
+  .asset-card:hover, .asset-card.featured { border-color:var(--orange); }
+  .asset-card:hover { transform:translateY(-2px); }
+  .asset-thumb { background:linear-gradient(135deg,#f05a1a,#c0392b); height:140px; display:flex; align-items:center; justify-content:center; font-size:36px; }
+  .asset-info { padding:14px; }
+  .asset-name { font-weight:700; font-size:14px; margin-bottom:3px; }
+  .asset-creator { font-size:12px; color:var(--text2); margin-bottom:8px; }
+  .asset-price { font-size:14px; font-weight:700; margin-bottom:10px; }
+  .btn-quick { width:100%; background:var(--orange); color:#fff; border:none; border-radius:7px; padding:8px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:.2s; }
+  .btn-quick:hover { background:var(--orange2); }
+
+  /* MARKETPLACE */
+  .mp-search { display:flex; gap:12px; margin-bottom:20px; }
+  .mp-search-input { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:9px; padding:12px 16px; color:#fff; font-size:14px; font-family:inherit; outline:none; }
+  .mp-search-input::placeholder { color:var(--text2); }
+  .mp-search-input:focus { border-color:var(--orange); }
+  .cat-btn { background:var(--bg2); border:1px solid var(--border); border-radius:9px; padding:12px 20px; color:#fff; font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .filter-tabs { display:flex; gap:8px; margin-bottom:24px; }
+  .ftab { background:var(--bg2); border:1px solid var(--border); border-radius:7px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--text2); display:flex; align-items:center; gap:6px; transition:.2s; }
+  .ftab.active { background:var(--orange); border-color:var(--orange); color:#fff; }
+  .ftab:hover:not(.active) { border-color:var(--text2); color:#fff; }
+  .mp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .mp-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; transition:.2s; }
+  .mp-card:hover { border-color:var(--orange); }
+  .mp-thumb { background:var(--bg3); border-radius:8px; height:100px; margin-bottom:12px; }
+  .sk { background:var(--bg3); border-radius:5px; height:10px; margin-bottom:7px; }
+  .sk.s60 { width:60%; }
+  .sk.s40 { width:40%; height:12px; }
+
+  /* REVIEW */
+  .review-layout { display:grid; grid-template-columns:1fr 290px; gap:20px; }
+  .card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:22px; }
+  .card-title { font-size:14px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .load-tabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .ltab { background:var(--orange); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; transition:.2s; }
+  .ltab.outline { background:transparent; border:1px solid var(--border); color:var(--text3); }
+  .ltab.outline:hover { border-color:var(--orange); color:#fff; }
+  .video-input-row { display:flex; gap:10px; }
+  .video-input { flex:1; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px 14px; color:#fff; font-size:13px; font-family:inherit; outline:none; }
+  .video-input::placeholder { color:var(--text2); }
+  .notes-ta { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px; color:#fff; font-size:13px; font-family:inherit; outline:none; resize:none; height:90px; margin-bottom:10px; }
+  .notes-ta::placeholder { color:var(--text2); }
+  .notes-btns { display:flex; gap:8px; margin-bottom:8px; }
+  .btn-add { background:var(--bg3); border:1px solid var(--border); border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:#fff; display:flex; align-items:center; gap:6px; }
+  .btn-voice { background:var(--blue); color:#fff; border:none; border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; }
+  .notes-count { font-size:12px; color:var(--text2); text-align:right; margin-bottom:14px; }
+  .empty-state { text-align:center; color:var(--text2); padding:30px 0; font-size:13px; }
+
+  /* SELL */
+  .sell-layout { display:grid; grid-template-columns:1fr 260px; gap:20px; }
+  .sell-section { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px; }
+  .sell-section-title { font-size:13px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+  .sel { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px 14px; color:#fff; font-size:14px; font-family:inherit; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b9cb8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; }
+  .upload-zone { border:2px dashed var(--border); border-radius:10px; padding:36px; text-align:center; cursor:pointer; transition:.2s; }
+  .upload-zone:hover { border-color:var(--orange); }
+  .upload-icon { font-size:28px; margin-bottom:10px; }
+  .upload-text { font-size:13px; font-weight:600; color:var(--text3); margin-bottom:4px; }
+  .upload-sub { font-size:11px; color:var(--text2); }
+  .upload-sub.orange { color:var(--orange); }
+  .guidelines-box { background:rgba(240,90,26,.07); border:1px solid rgba(240,90,26,.25); border-radius:12px; padding:18px; }
+  .gl-title { font-size:13px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .gl-item { font-size:13px; color:var(--text3); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .gl-item::before { content:'✓'; color:var(--green); font-weight:700; flex-shrink:0; }
+  .toggle-row { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text3); }
+  .toggle { width:38px; height:22px; background:var(--bg3); border-radius:50px; cursor:pointer; position:relative; border:1px solid var(--border); transition:background .2s,border-color .2s; flex-shrink:0; }
+  .toggle::after { content:''; position:absolute; width:16px; height:16px; background:var(--text2); border-radius:50%; top:2px; left:2px; transition:transform .2s,background .2s; }
+  .toggle.on { background:rgba(240,90,26,.2); border-color:var(--orange); }
+  .toggle.on::after { transform:translateX(16px); background:var(--orange); }
+
+  /* AI STUDIO — orange-matched theme */
+  .ai-credits {
+    background:linear-gradient(135deg,rgba(240,90,26,.25),rgba(180,55,10,.18));
+    border:1px solid rgba(240,90,26,.35);
+    border-radius:12px; padding:20px 28px;
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;
+  }
+  .cred-label { font-size:11px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:5px; margin-bottom:4px; }
+  .cred-amount { font-size:28px; font-weight:800; }
+  .btn-buy-credits {
+    background:var(--orange); color:#fff; border:none; border-radius:9px;
+    padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; gap:8px; transition:.2s;
+  }
+  .btn-buy-credits:hover { background:var(--orange2); }
+  .ai-tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:26px; }
+  .aitab {
+    background:transparent; border:none; border-bottom:2px solid transparent;
+    padding:12px 24px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;
+    color:var(--text2); display:flex; align-items:center; gap:7px; transition:.2s; margin-bottom:-1px;
+  }
+  .aitab.active { color:#fff; border-bottom-color:var(--orange); background:rgba(240,90,26,.08); border-radius:8px 8px 0 0; }
+  .aitab:hover:not(.active) { color:var(--text3); }
+  .ai-layout { display:grid; grid-template-columns:1fr 1.6fr; gap:20px; }
+  .ai-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:24px; }
+  .ai-card-title { font-size:16px; font-weight:800; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+  .ai-ta { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px; color:#fff; font-size:13px; font-family:inherit; outline:none; resize:none; height:100px; margin-bottom:6px; }
+  .ai-ta:focus { border-color:var(--orange); }
+  .ai-hint { font-size:11px; color:var(--text2); margin-bottom:16px; }
+  .cost-box {
+    background:rgba(240,90,26,.10); border:1px solid rgba(240,90,26,.28);
+    border-radius:8px; padding:10px 14px; font-size:12px; color:var(--orange); margin-bottom:16px;
+  }
+  .btn-generate {
+    width:100%; background:var(--orange); color:#fff; border:none; border-radius:9px;
+    padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; gap:8px; transition:.2s;
+  }
+  .btn-generate:hover { background:var(--orange2); }
+  .gen-empty { text-align:center; color:var(--text2); padding:60px 20px; font-size:13px; }
+  .gen-empty .ico { font-size:42px; margin-bottom:12px; opacity:.35; }
+
+  /* AI STUDIO — AI Voice tab */
+  .voice-panel { display:none; }
+  .voice-panel.active { display:grid; grid-template-columns:1fr 1.6fr; gap:20px; }
+  .voice-input-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:24px; }
+  .voice-list-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:0; overflow:hidden; }
+  .voice-list-header {
+    padding:16px 20px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .voice-list-title { font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  .voice-search {
+    background:var(--bg3); border:1px solid var(--border); border-radius:7px;
+    padding:8px 12px; color:#fff; font-size:12px; font-family:inherit; outline:none;
+    width:170px; transition:.2s;
+  }
+  .voice-search:focus { border-color:var(--orange); }
+  .voice-search::placeholder { color:var(--text2); }
+  .voice-list-scroll { max-height:420px; overflow-y:auto; }
+  .voice-list-scroll::-webkit-scrollbar { width:4px; }
+  .voice-list-scroll::-webkit-scrollbar-track { background:transparent; }
+  .voice-list-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  .voice-item {
+    display:flex; align-items:center; gap:12px;
+    padding:11px 20px; border-bottom:1px solid var(--border);
+    cursor:pointer; transition:.15s;
+  }
+  .voice-item:last-child { border-bottom:none; }
+  .voice-item:hover { background:rgba(240,90,26,.06); }
+  .voice-item.selected { background:rgba(240,90,26,.1); border-left:3px solid var(--orange); padding-left:17px; }
+  .voice-avatar {
+    width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,var(--orange),#c0392b);
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;
+    flex-shrink:0; color:#fff;
+  }
+  .voice-info { flex:1; min-width:0; }
+  .voice-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .voice-meta { font-size:11px; color:var(--text2); margin-top:1px; }
+  .voice-tags { display:flex; gap:4px; margin-top:3px; flex-wrap:wrap; }
+  .voice-tag {
+    background:var(--bg3); border:1px solid var(--border);
+    border-radius:4px; padding:1px 6px; font-size:10px; color:var(--text2);
+  }
+  .voice-tag.orange { background:rgba(240,90,26,.12); border-color:rgba(240,90,26,.3); color:var(--orange); }
+  .voice-play-btn {
+    width:30px; height:30px; border-radius:50%;
+    background:var(--bg3); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:.2s; flex-shrink:0; color:#fff; font-size:11px;
+  }
+  .voice-play-btn:hover { background:var(--orange); border-color:var(--orange); }
+  .voice-play-btn.playing { background:var(--orange); border-color:var(--orange); animation:pulse-ring .8s ease infinite; }
+  @keyframes pulse-ring {
+    0%,100% { box-shadow:0 0 0 0 rgba(240,90,26,.5); }
+    50% { box-shadow:0 0 0 6px rgba(240,90,26,0); }
+  }
+  .voice-gender-badge {
+    font-size:10px; font-weight:700; padding:2px 7px; border-radius:4px;
+    margin-top:3px; display:inline-block;
+  }
+  .voice-gender-badge.m { background:rgba(59,130,246,.15); color:#60a5fa; }
+  .voice-gender-badge.f { background:rgba(236,72,153,.15); color:#f472b6; }
+  .voice-footer { padding:14px 20px; border-top:1px solid var(--border); font-size:11px; color:var(--text2); text-align:center; }
+
+  /* Voice generate section */
+  .voice-gen-label { font-size:13px; color:var(--text3); margin-bottom:6px; display:block; font-weight:500; }
+  .selected-voice-pill {
+    display:flex; align-items:center; gap:8px; background:rgba(240,90,26,.1);
+    border:1px solid rgba(240,90,26,.3); border-radius:8px; padding:9px 12px; margin-bottom:14px;
+  }
+  .selected-voice-pill .pill-name { font-size:13px; font-weight:600; color:var(--orange); }
+  .selected-voice-pill .pill-change { font-size:11px; color:var(--text2); cursor:pointer; margin-left:auto; }
+  .selected-voice-pill .pill-change:hover { color:#fff; }
+
+  /* DASHBOARD */
+  .dash-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; }
+  .dash-title { font-size:28px; font-weight:800; }
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+  .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:18px 20px; }
+  .stat-label { font-size:12px; color:var(--text2); margin-bottom:8px; }
+  .stat-val { font-size:24px; font-weight:800; }
+  .stat-val.orange { color:var(--orange); }
+  .stat-val.green { color:var(--green); }
+  .stat-val.blue { color:var(--blue); }
+  .stat-val.yellow { color:var(--yellow); }
+  .assets-card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:20px; }
+  .assets-card-title { font-size:14px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .no-assets { text-align:center; color:var(--text2); padding:28px; font-size:13px; }
+
+  /* ADMIN */
+  .admin-tabs { display:flex; gap:8px; margin-bottom:22px; flex-wrap:wrap; }
+  .admtab { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:10px 18px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--text3); display:flex; align-items:center; gap:6px; transition:.2s; }
+  .admtab.active { background:var(--orange); border-color:var(--orange); color:#fff; }
+  .admtab:hover:not(.active) { border-color:var(--orange); color:#fff; }
+  .config-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:28px; max-width:480px; }
+  .config-title { font-size:15px; font-weight:700; margin-bottom:20px; }
+
+  /* ── ADMIN COMMAND CENTER ── */
+  .admin-stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+  .admin-stat { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+  .admin-stat-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+  .admin-stat-val { font-size:22px; font-weight:800; }
+  .pending-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .pending-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:.2s; }
+  .pending-card:hover { border-color:rgba(240,90,26,.4); }
+  .pending-preview { position:relative; height:160px; background:var(--bg3); overflow:hidden; }
+  .pending-preview img,.pending-preview video { width:100%; height:100%; object-fit:cover; display:block; }
+  .pending-preview .no-preview { display:flex; align-items:center; justify-content:center; height:100%; font-size:36px; color:var(--text2); }
+  .pending-status-badge { position:absolute; top:8px; right:8px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px; }
+  .pending-status-badge.pending  { background:rgba(251,191,36,.15); border:1px solid #fbbf24; color:#fbbf24; }
+  .pending-status-badge.approved { background:rgba(34,197,94,.15);  border:1px solid #22c55e; color:#22c55e; }
+  .pending-status-badge.rejected { background:rgba(239,68,68,.15);  border:1px solid #ef4444; color:#ef4444; }
+  .pending-info { padding:14px; }
+  .pending-title { font-size:14px; font-weight:700; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pending-meta  { font-size:11px; color:var(--text2); margin-bottom:10px; }
+  .pending-price { font-size:13px; font-weight:700; color:var(--orange); margin-bottom:12px; }
+  .pending-actions { display:flex; gap:8px; }
+  .btn-approve { flex:1; background:rgba(34,197,94,.15); border:1px solid #22c55e; color:#22c55e; border-radius:7px; padding:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; transition:.2s; }
+  .btn-approve:hover { background:#22c55e; color:#000; }
+  .btn-reject  { flex:1; background:rgba(239,68,68,.12); border:1px solid #ef4444; color:#ef4444; border-radius:7px; padding:8px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; transition:.2s; }
+  .btn-reject:hover  { background:#ef4444; color:#fff; }
+  .admin-empty { text-align:center; padding:50px 20px; color:var(--text2); font-size:14px; }
+  .payout-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .payout-table th { text-align:left; padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:.5px; font-weight:600; }
+  .payout-table td { padding:12px 14px; border-bottom:1px solid rgba(42,51,71,.5); vertical-align:middle; }
+  .payout-table tr:last-child td { border-bottom:none; }
+  .upi-badge { font-family:monospace; background:var(--bg3); border:1px solid var(--border); border-radius:5px; padding:2px 8px; font-size:11px; color:var(--text3); }
+  .btn-approve-payout { background:var(--orange); color:#fff; border:none; border-radius:6px; padding:6px 14px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; transition:.2s; }
+  .btn-approve-payout:hover { background:var(--orange2); }
+  .payout-status { font-size:10px; font-weight:700; padding:2px 8px; border-radius:4px; }
+  .payout-status.pending  { background:rgba(251,191,36,.12); color:#fbbf24; }
+  .payout-status.paid     { background:rgba(34,197,94,.12);  color:#22c55e; }
+
+  /* ── PORTFOLIO / MASONRY ── */
+  .profile-page-wrap { padding:32px; max-width:1100px; margin:0 auto; }
+  .profile-header { display:flex; align-items:flex-start; gap:24px; margin-bottom:36px; flex-wrap:wrap; }
+  .profile-avatar-wrap { width:80px; height:80px; border-radius:50%; border:3px solid var(--orange); overflow:hidden; flex-shrink:0; background:var(--bg3); display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; color:var(--orange); }
+  .profile-avatar-wrap img { width:100%; height:100%; object-fit:cover; }
+  .profile-info { flex:1; min-width:200px; }
+  .profile-name { font-size:24px; font-weight:800; margin-bottom:4px; }
+  .profile-type { font-size:11px; color:var(--orange); font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:inline-block; background:rgba(240,90,26,.1); border:1px solid rgba(240,90,26,.25); border-radius:4px; padding:2px 8px; }
+  .profile-bio  { font-size:14px; color:var(--text3); line-height:1.6; margin-bottom:12px; max-width:480px; }
+  .profile-stats { display:flex; gap:24px; margin-bottom:14px; flex-wrap:wrap; }
+  .profile-stat { text-align:center; }
+  .profile-stat-num { font-size:20px; font-weight:800; }
+  .profile-stat-lbl { font-size:11px; color:var(--text2); margin-top:1px; }
+  .profile-actions { display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-contact { background:var(--orange); color:#fff; border:none; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:.2s; }
+  .btn-contact:hover { background:var(--orange2); }
+  .btn-follow { background:transparent; color:#fff; border:1px solid var(--border); border-radius:8px; padding:10px 20px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:.2s; }
+  .btn-follow.following { border-color:var(--orange); color:var(--orange); }
+  .btn-follow:hover { border-color:var(--orange); color:var(--orange); }
+  .masonry-grid { columns:4; column-gap:14px; }
+  .masonry-item { break-inside:avoid; margin-bottom:14px; }
+  .masonry-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; cursor:pointer; transition:transform .2s,border-color .2s; display:block; }
+  .masonry-card:hover { transform:translateY(-3px); border-color:var(--orange); }
+  .masonry-thumb { width:100%; display:block; object-fit:cover; }
+  .masonry-thumb-ph { width:100%; display:flex; align-items:center; justify-content:center; font-size:32px; background:linear-gradient(135deg,#f05a1a,#c0392b); }
+  .masonry-body { padding:12px; }
+  .masonry-title { font-size:13px; font-weight:700; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .masonry-price { font-size:12px; font-weight:700; color:var(--orange); }
+  .masonry-cat   { font-size:10px; color:var(--text2); margin-top:2px; }
+
+  /* ── CHECKOUT MODAL ── */
+  .checkout-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+  .checkout-overlay.open { display:flex; }
+  .checkout-box { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:28px; width:100%; max-width:400px; animation:modalIn .18s ease; position:relative; }
+  .checkout-close { position:absolute; top:14px; right:14px; width:30px; height:30px; background:var(--bg3); border:1px solid var(--border); border-radius:7px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text2); font-size:14px; transition:.2s; }
+  .checkout-close:hover { border-color:var(--orange); color:#fff; }
+  .checkout-thumb { width:100%; height:150px; object-fit:cover; border-radius:9px; margin-bottom:14px; display:block; background:var(--bg3); }
+  .checkout-title { font-size:17px; font-weight:800; margin-bottom:4px; }
+  .checkout-creator { font-size:12px; color:var(--text2); margin-bottom:14px; }
+  .checkout-price-row { display:flex; align-items:center; justify-content:space-between; background:var(--bg3); border-radius:8px; padding:12px 16px; margin-bottom:18px; border:1px solid var(--border); }
+  .checkout-price-label { font-size:13px; color:var(--text2); }
+  .checkout-price-free  { font-size:18px; font-weight:800; color:var(--green); }
+  .checkout-price-paid  { font-size:18px; font-weight:800; color:var(--orange); }
+  .btn-dl-now { width:100%; background:var(--green); color:#000; border:none; border-radius:9px; padding:13px; font-size:14px; font-weight:800; cursor:pointer; font-family:inherit; transition:.2s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .btn-dl-now:hover { background:#16a34a; color:#fff; }
+  .coming-soon-box { background:rgba(240,90,26,.07); border:1px dashed rgba(240,90,26,.35); border-radius:10px; padding:22px 16px; text-align:center; }
+  .cs-icon  { font-size:34px; margin-bottom:8px; }
+  .cs-title { font-size:15px; font-weight:700; margin-bottom:5px; }
+  .cs-sub   { font-size:12px; color:var(--text2); line-height:1.5; }
+
+  /* ── AI VIDEO ── */
+  .vid-layout { display:grid; grid-template-columns:1fr 1.5fr; gap:20px; }
+
+  /* ratio selector */
+  .vid-ratio-btns { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+  .vid-ratio-btn {
+    background:var(--bg3); border:1px solid var(--border); border-radius:9px;
+    padding:10px 6px; color:var(--text2); font-size:11px; font-weight:600;
+    cursor:pointer; font-family:inherit; text-align:center; transition:.2s; line-height:1.5;
+  }
+  .vid-ratio-btn:hover { border-color:var(--orange); color:#fff; }
+  .vid-ratio-btn.active { background:rgba(240,90,26,.15); border-color:var(--orange); color:var(--orange); }
+  .ratio-icon16 { font-size:16px; display:block; }
+  .ratio-icon9  { font-size:16px; display:block; transform:rotate(90deg); }
+
+  /* progress bar */
+  .vid-progress-track {
+    width:100%; height:8px; background:var(--bg3); border-radius:50px; overflow:hidden;
+  }
+  .vid-progress-bar {
+    height:100%; width:0%; background:linear-gradient(90deg,var(--orange),#ff8c42);
+    border-radius:50px; transition:width .4s ease;
+    background-size:200% 100%;
+    animation:shimmer 1.8s infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position:200% 0; }
+    100% { background-position:-200% 0; }
+  }
+
+  /* polling stages */
+  .vid-stages { display:flex; gap:6px; margin-top:12px; }
+  .vid-stage {
+    flex:1; text-align:center; font-size:10px; font-weight:600;
+    padding:5px 4px; border-radius:6px; color:var(--text2);
+    background:var(--bg3); border:1px solid var(--border); transition:.3s;
+  }
+  .vid-stage.active { background:rgba(240,90,26,.15); border-color:var(--orange); color:var(--orange); }
+  .vid-stage.done   { background:rgba(34,197,94,.12);  border-color:#22c55e;       color:#22c55e; }
+
+  /* video card in gallery */
+  .vid-card {
+    background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+    overflow:hidden; margin-bottom:14px; transition:.2s;
+  }
+  .vid-card:hover { border-color:var(--orange); }
+  .vid-card video { width:100%; display:block; max-height:240px; object-fit:cover; }
+  .vid-card-info { padding:12px 14px; }
+  .vid-card-prompt { font-size:12px; color:var(--text3); margin-bottom:8px; line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .vid-card-meta { display:flex; align-items:center; justify-content:space-between; }
+  .vid-card-badge {
+    font-size:10px; font-weight:700; padding:3px 8px; border-radius:4px;
+    background:rgba(240,90,26,.15); border:1px solid rgba(240,90,26,.3); color:var(--orange);
+  }
+  .vid-card-actions { display:flex; gap:6px; }
+  .vid-dl-btn {
+    background:var(--orange); color:#fff; border:none; border-radius:6px;
+    padding:5px 12px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit;
+    text-decoration:none; display:flex; align-items:center; gap:4px; transition:.2s;
+  }
+  .vid-dl-btn:hover { background:var(--orange2); }
+
+  /* dreaming spinner overlay on gallery card */
+  .vid-dreaming-card {
+    border:1px dashed var(--orange); border-radius:10px; padding:32px 20px;
+    text-align:center; margin-bottom:14px; background:rgba(240,90,26,.04);
+  }
+  .vid-spinner {
+    width:44px; height:44px; border:3px solid var(--border);
+    border-top-color:var(--orange); border-radius:50%;
+    animation:spin .9s linear infinite; margin:0 auto 12px;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* CATEGORY MODAL */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.65);
+    backdrop-filter:blur(4px); z-index:999; align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-box {
+    background:var(--bg2); border:1px solid var(--border); border-radius:16px;
+    width:100%; max-width:680px; max-height:88vh; overflow:hidden;
+    display:flex; flex-direction:column; animation:modalIn .18s ease;
+  }
+  @keyframes modalIn { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+  .modal-head {
+    padding:20px 24px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .modal-title { font-size:17px; font-weight:800; }
+  .modal-close {
+    width:32px; height:32px; background:var(--bg3); border:1px solid var(--border);
+    border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    font-size:16px; color:var(--text2); transition:.2s;
+  }
+  .modal-close:hover { border-color:var(--orange); color:#fff; }
+  .modal-search-wrap { padding:16px 24px; border-bottom:1px solid var(--border); }
+  .modal-search {
+    width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:9px;
+    padding:11px 14px; color:#fff; font-size:14px; font-family:inherit; outline:none; transition:.2s;
+  }
+  .modal-search:focus { border-color:var(--orange); }
+  .modal-search::placeholder { color:var(--text2); }
+  .modal-body { padding:20px 24px; overflow-y:auto; flex:1; }
+  .modal-cats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:8px; }
+  .modal-cat-card {
+    background:var(--bg3); border:1px solid var(--border); border-radius:10px;
+    padding:14px 12px; cursor:pointer; transition:.2s; display:flex; align-items:center; gap:10px;
+  }
+  .modal-cat-card:hover { border-color:var(--orange); background:rgba(240,90,26,.08); }
+  .modal-cat-card.active { border-color:var(--orange); background:rgba(240,90,26,.12); }
+  .modal-cat-icon { font-size:22px; flex-shrink:0; }
+  .modal-cat-name { font-size:13px; font-weight:600; line-height:1.3; }
+  .modal-cat-count { font-size:11px; color:var(--text2); margin-top:2px; }
+
+  /* REAL ASSET CARDS */
+  .asset-real-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .asset-real-card {
+    background:var(--bg2); border:1px solid var(--border); border-radius:10px;
+    overflow:hidden; cursor:pointer; transition:border-color .2s, transform .2s;
+  }
+  .asset-real-card:hover { border-color:var(--orange); transform:translateY(-2px); }
+  .asset-real-thumb { height:110px; display:flex; align-items:center; justify-content:center; font-size:30px; }
+  .asset-real-info { padding:12px; }
+  .asset-real-name { font-weight:700; font-size:13px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .asset-real-sub { font-size:11px; color:var(--text2); margin-bottom:6px; }
+  .asset-real-price { font-size:13px; font-weight:800; color:#fff; margin-bottom:8px; }
+  .asset-real-cat { display:inline-block; background:rgba(240,90,26,.12); border:1px solid rgba(240,90,26,.25); border-radius:4px; padding:2px 7px; font-size:10px; color:var(--orange); font-weight:600; margin-bottom:8px; }
+  .no-results { grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--text2); }
+  .no-results .nr-icon { font-size:40px; margin-bottom:12px; opacity:.4; display:block; }
+  .active-filter-pill {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(240,90,26,.12); border:1px solid rgba(240,90,26,.35);
+    border-radius:50px; padding:5px 14px; font-size:12px; font-weight:600; color:var(--orange); margin-bottom:16px;
+  }
+  .active-filter-pill .pill-x { cursor:pointer; font-size:14px; line-height:1; }
+  .cat-btn.has-filter { border-color:var(--orange); color:var(--orange); background:rgba(240,90,26,.08); }
+  .asset-real-footer { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .btn-quick-small {
+    background:var(--orange); color:#fff; border:none; border-radius:6px;
+    padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit;
+    transition:.2s; white-space:nowrap;
+  }
+  .btn-quick-small:hover { background:var(--orange2); }
+  .mp-empty { grid-column:1/-1; text-align:center; padding:64px 20px; color:var(--text2); font-size:14px; }
+  .mp-result-count { font-size:12px; color:var(--text2); margin-bottom:14px; }
+
+  /* sell upload progress */
+  .sell-progress { margin-top:14px; display:none; }
+  .sell-step { display:flex; align-items:center; gap:10px; padding:8px 0; font-size:13px; color:var(--text2); border-bottom:1px solid var(--border); }
+  .sell-step:last-child { border-bottom:none; }
+  .sell-step-icon { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0; }
+  .sell-step-icon.wait    { background:var(--bg3); border:1px solid var(--border); color:var(--text2); }
+  .sell-step-icon.running { background:rgba(240,90,26,.15); border:1px solid var(--orange); animation:skPulse 1s ease infinite; }
+  .sell-step-icon.done    { background:rgba(34,197,94,.15); border:1px solid #22c55e; color:#22c55e; }
+  .sell-step-icon.error   { background:rgba(239,68,68,.15); border:1px solid #ef4444; color:#ef4444; }
+  .sell-step-label { flex:1; }
+  .sell-step-label.active { color:#fff; font-weight:600; }
+
+</style>
+</head>
+<body>
+
+<!-- FILE:// WARNING BANNER — auto-hides when on a proper server -->
+<div id="fileProtocolBanner" style="
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:#0f1117; align-items:center; justify-content:center;
+  flex-direction:column; text-align:center; padding:32px;
+  font-family:'Manrope',sans-serif;">
+  <div style="max-width:520px;">
+    <div style="font-size:52px;margin-bottom:16px;">🚫</div>
+    <h1 style="color:#fff;font-size:24px;font-weight:800;margin-bottom:10px;">
+      Cannot connect to Supabase
+    </h1>
+    <p style="color:#8b9cb8;font-size:15px;line-height:1.7;margin-bottom:28px;">
+      You're opening this file directly from your desktop (<code style="color:#f05a1a;">file://</code>).
+      Browsers block all external API requests from <code style="color:#f05a1a;">file://</code> due to CORS security policy.
+      <br><br>
+      <strong style="color:#fff;">This causes the "Failed to fetch" error.</strong>
+    </p>
+
+    <div style="background:#161b27;border:1px solid #2a3347;border-radius:12px;padding:24px;margin-bottom:24px;text-align:left;">
+      <p style="color:#f05a1a;font-weight:700;font-size:13px;margin-bottom:12px;">⚡ FIX — Run a local server (1 command):</p>
+
+      <div style="background:#000;border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <code id="serverCmd" style="color:#22c55e;font-size:15px;font-family:monospace;">npx serve .</code>
+        <button onclick="copyCmd()" style="background:#f05a1a;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;" id="copyBtn">Copy</button>
+      </div>
+      <p style="color:#8b9cb8;font-size:12px;margin:0;">
+        Open <strong>Terminal</strong> → navigate to the folder containing <code>insideframe.html</code> → paste the command → open
+        <strong style="color:#f05a1a;">http://localhost:3000</strong> in your browser.
+      </p>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <a href="http://localhost:3000" target="_blank"
+         style="background:#f05a1a;color:#fff;text-decoration:none;border-radius:8px;padding:12px 24px;font-weight:700;font-size:14px;">
+        🚀 Open localhost:3000
+      </a>
+      <a href="http://localhost:5000" target="_blank"
+         style="background:#161b27;color:#fff;text-decoration:none;border:1px solid #2a3347;border-radius:8px;padding:12px 24px;font-weight:600;font-size:14px;">
+        Try :5000
+      </a>
+      <a href="http://localhost:8080" target="_blank"
+         style="background:#161b27;color:#fff;text-decoration:none;border:1px solid #2a3347;border-radius:8px;padding:12px 24px;font-weight:600;font-size:14px;">
+        Try :8080
+      </a>
+    </div>
+
+    <p style="color:#4a5568;font-size:12px;margin-top:20px;">
+      Don't have Node.js? Install from <a href="https://nodejs.org" target="_blank" style="color:#f05a1a;">nodejs.org</a>
+      — it's free and takes 2 minutes. Then run the command above.
+    </p>
+  </div>
+</div>
+
+<script>
+// Show banner immediately if on file://
+(function() {
+  if (window.location.protocol === 'file:') {
+    const banner = document.getElementById('fileProtocolBanner');
+    if (banner) banner.style.display = 'flex';
+  }
+})();
+
+function copyCmd() {
+  navigator.clipboard.writeText('npx serve .').then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    btn.style.background = '#22c55e';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = '#f05a1a'; }, 2000);
+  });
+}
+</script>
+
+<!-- PAGE 1: SIGN IN -->
+<div class="page active" id="p-signin">
+  <div class="auth-wrap" style="background:var(--bg);">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">IF</div>
+        <div class="auth-logo-text">Insideframe<span>.av</span></div>
+      </div>
+      <div class="auth-title">Sign In</div>
+      <div class="auth-sub">Access your creator dashboard</div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="siEmail" type="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <input class="form-input" id="siPassword" type="password" placeholder="••••••••" style="padding-right:44px;">
+          <span class="eye" onclick="togglePwd('siPassword',this)" title="Show/hide password">👁</span>
+        </div>
+      </div>
+      <div id="siError" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;background:rgba(239,68,68,.12);border:1px solid #ef4444;color:#ef4444;"></div>
+      <button class="btn-full" onclick="doSignIn()">Sign In</button>
+      <div class="auth-foot">Don't have an account? <a onclick="go('p-signup')">Create one</a></div>
+      <div class="divider">OR</div>
+      <button class="btn-google" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: SIGN UP -->
+<div class="page" id="p-signup">
+  <div class="auth-wrap" style="background:var(--bg);">
+    <div class="auth-card wide">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">IF</div>
+        <div class="auth-logo-text">Insideframe<span>.av</span></div>
+      </div>
+      <div class="auth-title">Create Account</div>
+      <div class="auth-sub">Start creating and selling today</div>
+      <div class="form-group">
+        <label class="form-label">FULL NAME</label>
+        <input class="form-input" id="suName" placeholder="Your full name">
+      </div>
+      <div class="form-row">
+        <div>
+          <label class="form-label">EMAIL</label>
+          <input class="form-input" id="suEmail" type="email" placeholder="you@email.com">
+        </div>
+        <div>
+          <label class="form-label orange">MOBILE NUMBER</label>
+          <div class="phone-row">
+            <div class="country-select-wrap">
+              <select id="countryCode" class="country-sel" onchange="updateFlag(this)">
+                <option value="+91"  data-flag="🇮🇳">🇮🇳 +91</option>
+                <option value="+1"   data-flag="🇺🇸">🇺🇸 +1</option>
+                <option value="+44"  data-flag="🇬🇧">🇬🇧 +44</option>
+                <option value="+61"  data-flag="🇦🇺">🇦🇺 +61</option>
+                <option value="+81"  data-flag="🇯🇵">🇯🇵 +81</option>
+                <option value="+86"  data-flag="🇨🇳">🇨🇳 +86</option>
+                <option value="+49"  data-flag="🇩🇪">🇩🇪 +49</option>
+                <option value="+33"  data-flag="🇫🇷">🇫🇷 +33</option>
+                <option value="+971" data-flag="🇦🇪">🇦🇪 +971</option>
+                <option value="+65"  data-flag="🇸🇬">🇸🇬 +65</option>
+                <option value="+60"  data-flag="🇲🇾">🇲🇾 +60</option>
+                <option value="+92"  data-flag="🇵🇰">🇵🇰 +92</option>
+                <option value="+880" data-flag="🇧🇩">🇧🇩 +880</option>
+                <option value="+94"  data-flag="🇱🇰">🇱🇰 +94</option>
+                <option value="+55"  data-flag="🇧🇷">🇧🇷 +55</option>
+                <option value="+52"  data-flag="🇲🇽">🇲🇽 +52</option>
+                <option value="+234" data-flag="🇳🇬">🇳🇬 +234</option>
+                <option value="+27"  data-flag="🇿🇦">🇿🇦 +27</option>
+                <option value="+7"   data-flag="🇷🇺">🇷🇺 +7</option>
+                <option value="+82"  data-flag="🇰🇷">🇰🇷 +82</option>
+              </select>
+            </div>
+            <input class="form-input" id="suPhone" placeholder="Phone number" style="flex:1;min-width:0;">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">I AM A</label>
+        <div class="role-btns">
+          <button class="role-btn" onclick="setRole(this)">👤<br>Creator</button>
+          <button class="role-btn active" onclick="setRole(this)">💼<br>Freelancer</button>
+          <button class="role-btn" onclick="setRole(this)">🏢<br>Agency</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label class="form-label">PASSWORD</label>
+          <div class="input-wrap">
+            <input class="form-input" id="suPassword" type="password" placeholder="Min 8 chars" style="padding-right:42px;">
+            <span class="eye" onclick="togglePwd('suPassword',this)" title="Show/hide">👁</span>
+          </div>
+        </div>
+        <div>
+          <label class="form-label">CONFIRM</label>
+          <div class="input-wrap">
+            <input class="form-input" id="suConfirm" type="password" placeholder="Repeat password" style="padding-right:42px;">
+            <span class="eye" onclick="togglePwd('suConfirm',this)" title="Show/hide">👁</span>
+          </div>
+        </div>
+      </div>
+      <div id="suError" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;background:rgba(239,68,68,.12);border:1px solid #ef4444;color:#ef4444;"></div>
+      <button class="btn-full" id="suBtn" onclick="doSignUp()">Create Account</button>
+      <div class="auth-foot">Already have an account? <a onclick="go('p-signin')">Sign In</a></div>
+      <div class="divider">OR</div>
+      <button class="btn-google" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: OTP -->
+<div class="page" id="p-otp">
+  <div class="auth-wrap" style="background:var(--bg);">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">IF</div>
+        <div class="auth-logo-text">Insideframe<span>.av</span></div>
+      </div>
+      <div class="auth-title">Verify Your Email</div>
+      <div class="auth-sub" style="margin-bottom:20px;">
+        6-digit code sent to<br>
+        <span id="otpEmailDisplay" style="color:var(--orange);font-weight:700;">your email address</span>
+      </div>
+
+      <!-- Info banner (replaces fake security code box) -->
+      <div class="otp-info-banner">
+        <div class="otp-info-icon">📬</div>
+        <div class="otp-info-text">
+          <strong>Check your inbox</strong> — we sent a 6-digit verification code.<br>
+          Also check your <strong>spam/junk</strong> folder if you don't see it within 1 minute.
+        </div>
+      </div>
+
+      <!-- 6 digit inputs -->
+      <div style="font-size:12px;color:var(--text2);text-align:center;margin-bottom:10px;font-weight:500;letter-spacing:.3px;">ENTER 6-DIGIT CODE</div>
+      <div class="otp-inputs" id="otpInputs">
+        <input class="otp-input" id="otp0" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code">
+        <input class="otp-input" id="otp1" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" id="otp2" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" id="otp3" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" id="otp4" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" id="otp5" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+
+      <div id="otpError" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:12px;background:rgba(239,68,68,.12);border:1px solid #ef4444;color:#ef4444;text-align:center;"></div>
+
+      <button class="btn-full" id="otpVerifyBtn" onclick="doVerifyOtp()">Verify OTP</button>
+
+      <div class="resend" style="margin-top:14px;">
+        Didn't receive the code?
+        <span id="otpResendText" class="resend-timer">Resend in <strong id="otpCountdown">60</strong>s</span>
+      </div>
+      <div class="back-otp" onclick="go('p-signup')">← Back to Sign Up</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: HOME -->
+<div class="page" id="p-home">
+  <nav>
+    <div class="logo" onclick="go('p-home')">
+      <div class="logo-icon">IF</div>
+      <div class="logo-text">Insideframe<span>.av</span></div>
+    </div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a>
+      <a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a>
+      <a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="go('p-signin')">Logout</button>
+  </nav>
+  <div class="main-content">
+    <div class="hero">
+      <div class="hero-badge">⚡ Built for Editors, by Editors</div>
+      <h1>The Editor's<br><span>Ecosystem</span></h1>
+      <p>LUTs, SFX, Overlays & Client Review — all in one place.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="go('p-marketplace')">🛒 Explore Marketplace</button>
+        <button class="btn-secondary" onclick="go('p-dashboard')">⊞ Go to Dashboard</button>
+      </div>
+    </div>
+    <div class="section-title">Trending Assets</div>
+    <div class="assets-grid">
+      <div class="asset-card">
+        <div class="asset-thumb">🎨</div>
+        <div class="asset-info">
+          <div class="asset-name">Cinematic LUT Pack</div>
+          <div class="asset-creator">Pro Films</div>
+          <div class="asset-price">₹299</div>
+          <button class="btn-quick">Quick View</button>
+        </div>
+      </div>
+      <div class="asset-card featured">
+        <div class="asset-thumb">🔊</div>
+        <div class="asset-info">
+          <div class="asset-name">Retro SFX Bundle</div>
+          <div class="asset-creator">Sound Labs</div>
+          <div class="asset-price">₹149</div>
+          <button class="btn-quick">Quick View</button>
+        </div>
+      </div>
+      <div class="asset-card">
+        <div class="asset-thumb">✨</div>
+        <div class="asset-info">
+          <div class="asset-name">Neon Overlays Set</div>
+          <div class="asset-creator">VFX Studio</div>
+          <div class="asset-price">₹199</div>
+          <button class="btn-quick">Quick View</button>
+        </div>
+      </div>
+      <div class="asset-card">
+        <div class="asset-thumb">🎨</div>
+        <div class="asset-info">
+          <div class="asset-name">Cinematic Presets</div>
+          <div class="asset-creator">Color Grading</div>
+          <div class="asset-price">₹249</div>
+          <button class="btn-quick">Quick View</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="catModal" onclick="closeCatModal(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">📂 Browse Categories</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-search-wrap">
+      <input class="modal-search" id="modalSearch" placeholder="Search categories..." oninput="filterModalCats(this.value)">
+    </div>
+    <div class="modal-body">
+      <div class="modal-cats-grid" id="modalCatsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: MARKETPLACE -->
+<div class="page" id="p-marketplace">
+  <nav>
+    <div class="logo" onclick="go('p-home')">
+      <div class="logo-icon">IF</div>
+      <div class="logo-text">Insideframe<span>.av</span></div>
+    </div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a>
+      <a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a>
+      <a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="go('p-signin')">Logout</button>
+  </nav>
+  <div class="main-content">
+    <h1 style="font-size:30px;font-weight:800;margin-bottom:4px;">Asset Marketplace</h1>
+    <p style="color:var(--text2);font-size:14px;margin-bottom:20px;">Free assets for your next project</p>
+    <div class="mp-search">
+      <input class="mp-search-input" id="mpSearchInput" placeholder="Search assets..." oninput="onMpSearch(this.value)">
+      <button class="cat-btn" id="catBtn" onclick="openModal()">📂 Categories ▾</button>
+    </div>
+    <div id="activeFilterWrap"></div>
+    <div class="filter-tabs">
+      <button class="ftab active" data-quick="all" onclick="onQuickTab(this,'all')">All</button>
+      <button class="ftab" data-quick="luts" onclick="onQuickTab(this,'luts')">🎨 LUTs</button>
+      <button class="ftab" data-quick="sfx" onclick="onQuickTab(this,'sfx')">🔊 SFX</button>
+      <button class="ftab" data-quick="overlays" onclick="onQuickTab(this,'overlays')">✨ Overlays</button>
+    </div>
+    <div id="mpResultCount" class="mp-result-count"></div>
+    <div class="asset-real-grid" id="mpGrid"></div>
+  </div>
+</div>
+
+<!-- PAGE 6: CLIENT REVIEW -->
+<div class="page" id="p-review">
+  <nav>
+    <div class="logo" onclick="go('p-home')">
+      <div class="logo-icon">IF</div>
+      <div class="logo-text">Insideframe<span>.av</span></div>
+    </div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a>
+      <a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a>
+      <a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="go('p-signin')">Logout</button>
+  </nav>
+  <div class="main-content">
+    <h1 style="font-size:24px;font-weight:800;margin-bottom:22px;">📽 Client Review Portal</h1>
+    <div class="review-layout">
+      <div class="card">
+        <div class="card-title">🖥 Load Your Video</div>
+        <div class="load-tabs">
+          <button class="ltab">🔗 Paste Link</button>
+          <button class="ltab outline">☁ Drive Link</button>
+          <button class="ltab outline">📁 Upload File</button>
+        </div>
+        <div class="video-input-row">
+          <input class="video-input" placeholder="Paste YouTube, Vimeo, or direct video link...">
+          <button class="btn-primary">Load</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📄 Notes</div>
+        <textarea class="notes-ta" placeholder="Write your feedback..."></textarea>
+        <div class="notes-btns">
+          <button class="btn-add">+ Add</button>
+          <button class="btn-voice">🎤 Voice</button>
+        </div>
+        <div class="notes-count">0/300</div>
+        <hr style="border-color:var(--border);margin-bottom:14px;">
+        <div class="empty-state">📥<br>No notes yet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 7: SELL -->
+<div class="page" id="p-sell">
+  <nav>
+    <div class="logo" onclick="go('p-home')">
+      <div class="logo-icon">IF</div>
+      <div class="logo-text">Insideframe<span>.av</span></div>
+    </div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a>
+      <a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a>
+      <a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="go('p-signin')">Logout</button>
+  </nav>
+  <div class="main-content">
+    <h1 style="font-size:24px;font-weight:800;margin-bottom:22px;">Sell Your Digital Product</h1>
+    <div class="sell-layout">
+      <div>
+        <div class="sell-section">
+          <div class="sell-section-title">📁 Select Category</div>
+          <select class="sel" id="sellCategory" onchange="onCategoryChange(this)">
+            <option value="">-- Choose a category --</option>
+            <option value="01">01 • Video Editing Assets</option>
+            <option value="02">02 • Presets & LUTs</option>
+            <option value="03">03 • Transitions</option>
+            <option value="04">04 • Text & Title Templates</option>
+            <option value="05">05 • Sound Effects</option>
+            <option value="06">06 • Background Music</option>
+            <option value="07">07 • Overlays & Effects</option>
+            <option value="08">08 • Motion Graphics</option>
+            <option value="09">09 • Thumbnail & Design Packs</option>
+            <option value="10">10 • Social Media Kits</option>
+            <option value="11">11 • Project Files</option>
+          </select>
+
+          <div style="margin-top:14px;">
+            <label class="form-label" style="margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              Sub-category
+              <span style="font-size:11px;color:var(--text2);font-weight:400;">(Optional)</span>
+            </label>
+            <select class="sel" id="subCategory" disabled style="opacity:0.45;cursor:not-allowed;transition:.2s;">
+              <option value="">-- Select a category first --</option>
+            </select>
+          </div>
+        </div>
+        <div class="sell-section">
+          <div class="sell-section-title">📝 Product Details</div>
+          <input class="form-input mb8" id="sellTitle" placeholder="Asset title">
+          <textarea class="notes-ta" id="sellDesc" placeholder="Describe your asset..." style="margin-bottom:8px;"></textarea>
+          <input class="form-input mb8" id="sellBio" placeholder="Creator bio (shown on product page)">
+          <div class="form-row" style="margin-bottom:8px;">
+            <input class="form-input" id="sellCreatorName" placeholder="Your name">
+            <input class="form-input" id="sellCreatorEmail" placeholder="Your email">
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
+            <input class="form-input" id="sellPhone" placeholder="Phone number" style="flex:1;">
+            <label class="toggle-row" style="cursor:pointer;user-select:none;">
+              <input type="checkbox" id="sellShowPhone" style="display:none;">
+              <div class="toggle" id="sellToggleUI" onclick="flipToggle()"></div>
+              <span id="sellToggleLabel" style="font-size:13px;color:var(--text2);">Show number publicly</span>
+            </label>
+          </div>
+          <input class="form-input" id="sellPrice" placeholder="Price (₹)" type="number" min="0">
+        </div>
+        <div class="sell-section">
+          <div class="sell-section-title">🖼 Product Thumbnail</div>
+          <input type="file" id="thumbFileInput" accept="image/*" style="display:none" onchange="previewThumb(this)">
+          <div class="upload-zone" onclick="document.getElementById('thumbFileInput').click()">
+            <div class="upload-icon" id="thumbPreviewWrap">🖼</div>
+            <div class="upload-text">Click to upload thumbnail</div>
+            <div class="upload-sub orange">Recommended 1280×720</div>
+            <div class="upload-sub">(Any image size will be auto-cropped to this aspect ratio for consistent look)</div>
+          </div>
+        </div>
+        <div class="sell-section">
+          <div class="sell-section-title">📦 Main Asset File</div>
+          <input type="file" id="assetFileInput" style="display:none" onchange="previewAssetFile(this)">
+          <div class="upload-zone" onclick="document.getElementById('assetFileInput').click()">
+            <div class="upload-icon">⬆</div>
+            <div class="upload-text" id="assetFileName">Click to upload file</div>
+            <div class="upload-sub">Max 200MB</div>
+          </div>
+        </div>
+        <button class="btn-full" id="publishBtn" onclick="submitSell()">✨ Publish Asset</button>
+        <div id="sellMsg" style="display:none;margin-top:12px;padding:12px 14px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;"></div>
+        <!-- Upload progress steps -->
+        <div class="sell-progress" id="sellProgress">
+          <div class="sell-step" id="sp-thumb">
+            <div class="sell-step-icon wait" id="spi-thumb">1</div>
+            <div class="sell-step-label" id="spl-thumb">Upload thumbnail</div>
+          </div>
+          <div class="sell-step" id="sp-file">
+            <div class="sell-step-icon wait" id="spi-file">2</div>
+            <div class="sell-step-label" id="spl-file">Upload asset file</div>
+          </div>
+          <div class="sell-step" id="sp-db">
+            <div class="sell-step-icon wait" id="spi-db">3</div>
+            <div class="sell-step-label" id="spl-db">Save to marketplace</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="guidelines-box">
+          <div class="gl-title">📋 Guidelines</div>
+          <div class="gl-item">High quality files</div>
+          <div class="gl-item">Clear descriptions</div>
+          <div class="gl-item">Professional preview</div>
+          <div class="gl-item">Approved in 24–48h</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 8: AI STUDIO -->
+<div class="page" id="p-ai">
+  <nav>
+    <div class="logo" onclick="go('p-home')">
+      <div class="logo-icon">IF</div>
+      <div class="logo-text">Insideframe<span>.av</span></div>
+    </div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a>
+      <a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a>
+      <a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="go('p-signin')">Logout</button>
+  </nav>
+  <div class="main-content">
+
+    <!-- Credits Bar -->
+    <div class="ai-credits">
+      <div>
+        <div class="cred-label">⚡ AI Credits Available</div>
+        <div class="cred-amount">5,000 credits</div>
+      </div>
+      <button class="btn-buy-credits">+ Buy Credits</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="ai-tabs">
+      <button class="aitab active" data-panel="ai-img" onclick="switchAiTab(this,'ai-img')">🖼 AI Image</button>
+      <button class="aitab" data-panel="ai-vid" onclick="switchAiTab(this,'ai-vid')">📹 AI Video</button>
+      <button class="aitab" data-panel="ai-voice" onclick="switchAiTab(this,'ai-voice')">🎤 AI Voice</button>
+    </div>
+
+    <!-- ── AI IMAGE panel ── -->
+    <div id="ai-img" class="ai-layout">
+      <div class="ai-card">
+        <div class="ai-card-title">✨ Create Asset</div>
+        <label class="voice-gen-label">Describe Your Vision</label>
+        <textarea class="ai-ta" placeholder="e.g., Cinematic sunset over mountains, 4K, ultra-detailed, golden hour lighting..."></textarea>
+        <div class="ai-hint">Be specific for better results</div>
+        <label class="voice-gen-label">Aspect Ratio</label>
+        <select class="sel" style="margin-bottom:16px;">
+          <option>16:9 (Widescreen)</option>
+          <option>1:1 (Square)</option>
+          <option>9:16 (Portrait)</option>
+        </select>
+        <label class="voice-gen-label">Style Preset</label>
+        <select class="sel" style="margin-bottom:16px;">
+          <option>Photorealistic</option>
+          <option>Cinematic</option>
+          <option>Anime</option>
+          <option>Oil Painting</option>
+        </select>
+        <div class="cost-box">⚡ Generation Cost &nbsp;·&nbsp; Image: <strong>50 credits</strong></div>
+        <button class="btn-generate">✨ Generate Image</button>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-title">🖼 Generated Assets</div>
+        <div class="gen-empty">
+          <div class="ico">📥</div>
+          No assets generated yet<br>
+          <span style="font-size:12px;">Create your first AI asset to get started!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI VIDEO panel -->
+    <div id="ai-vid" style="display:none;">
+      <div class="vid-layout">
+        <div class="ai-card">
+          <div class="ai-card-title">📹 Create Video</div>
+          <label class="voice-gen-label">Describe Your Scene</label>
+          <textarea class="ai-ta" id="vidPrompt" style="height:130px;margin-bottom:6px;" placeholder="e.g., Drone shot flying over a golden rice field at sunset, slow cinematic motion, ultra detailed..."></textarea>
+          <div class="ai-hint">Be cinematic and specific — Luma responds well to camera motion cues</div>
+          <label class="voice-gen-label">Aspect Ratio</label>
+          <div class="vid-ratio-btns" id="vidRatioBtns">
+            <button class="vid-ratio-btn active" data-ratio="16:9" onclick="setVidRatio(this)"><span class="ratio-icon16">▬</span><br>16:9<br><small>Widescreen</small></button>
+            <button class="vid-ratio-btn" data-ratio="9:16" onclick="setVidRatio(this)"><span class="ratio-icon9">▮</span><br>9:16<br><small>Portrait</small></button>
+            <button class="vid-ratio-btn" data-ratio="1:1" onclick="setVidRatio(this)">■<br>1:1<br><small>Square</small></button>
+            <button class="vid-ratio-btn" data-ratio="4:3" onclick="setVidRatio(this)">⬛<br>4:3<br><small>Standard</small></button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <input type="checkbox" id="vidLoop" style="accent-color:var(--orange);width:16px;height:16px;">
+            <label for="vidLoop" class="voice-gen-label" style="margin:0;cursor:pointer;">Loop video (seamless)</label>
+          </div>
+          <label class="voice-gen-label">Camera Motion <span style="color:var(--text2);font-weight:400;">(appended to prompt)</span></label>
+          <select class="sel" id="vidCamera" style="margin-bottom:16px;">
+            <option value="">None</option>
+            <option value=", slow dolly forward">Slow Dolly Forward</option>
+            <option value=", cinematic drone shot">Cinematic Drone</option>
+            <option value=", slow pan left to right">Pan Left to Right</option>
+            <option value=", handheld camera shake">Handheld Shake</option>
+            <option value=", orbital camera movement">Orbital</option>
+            <option value=", pull back reveal">Pull Back Reveal</option>
+            <option value=", static locked camera">Static Locked</option>
+          </select>
+          <div class="cost-box">⚡ Generation Cost &nbsp;·&nbsp; Video: <strong>200 credits</strong> &nbsp;·&nbsp; Powered by Luma AI</div>
+          <button class="btn-generate" id="vidGenBtn" onclick="generateVideo()">📹 Generate Video</button>
+          <div id="vidProgress" style="display:none;margin-top:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-size:13px;font-weight:700;" id="vidStatusLabel">✨ Dreaming…</span>
+              <span style="font-size:12px;color:var(--text2);" id="vidElapsed">0s</span>
+            </div>
+            <div class="vid-progress-track"><div class="vid-progress-bar" id="vidProgressBar"></div></div>
+            <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:center;" id="vidStatusSub">Luma is processing your scene — usually 60–120 seconds</div>
+            <div class="vid-stages">
+              <div class="vid-stage active" id="vstage-queued">⏳ Queued</div>
+              <div class="vid-stage" id="vstage-dreaming">✨ Dreaming</div>
+              <div class="vid-stage" id="vstage-rendering">🎞 Rendering</div>
+              <div class="vid-stage" id="vstage-done">✅ Done</div>
+            </div>
+          </div>
+        </div>
+        <div class="ai-card" id="vidGalleryCard">
+          <div class="ai-card-title" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>🎞 Generated Videos</span>
+            <span id="vidGalleryCount" style="font-size:12px;color:var(--text2);font-weight:400;"></span>
+          </div>
+          <div id="vidGallery">
+            <div class="gen-empty" id="vidEmptyState">
+              <div class="ico">📹</div>
+              No videos generated yet<br>
+              <span style="font-size:12px;">Your Luma videos will appear here</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI VOICE panel ── -->
+    <div id="ai-voice" style="display:none;">
+      <div class="voice-panel active" id="voicePanel">
+
+        <!-- Left: Generate -->
+        <div class="voice-input-card">
+          <div class="ai-card-title">🎤 Generate Voice</div>
+
+          <!-- Selected voice pill -->
+          <label class="voice-gen-label">Selected Voice</label>
+          <div class="selected-voice-pill" id="selectedVoicePill">
+            <span style="font-size:16px;">👤</span>
+            <span class="pill-name" id="selectedVoiceName">Choose a voice →</span>
+            <span class="pill-change" onclick="document.getElementById('voiceSearch').focus()">Change</span>
+          </div>
+
+          <!-- Script textarea -->
+          <label class="voice-gen-label">Your Script</label>
+          <textarea class="ai-ta" id="voiceScript" style="height:120px;margin-bottom:6px;"
+            placeholder="Type the text you want to convert to voice... (max 2,500 chars)"></textarea>
+          <div class="ai-hint">Keep under 2,500 characters for best results</div>
+
+          <!-- Stability -->
+          <label class="voice-gen-label">Stability
+            <span id="stabilityVal" style="color:var(--orange);margin-left:6px;font-weight:700;">50%</span>
+          </label>
+          <input type="range" min="0" max="100" value="50" style="width:100%;accent-color:var(--orange);margin-bottom:16px;"
+            oninput="document.getElementById('stabilityVal').textContent=this.value+'%'">
+
+          <!-- Similarity boost -->
+          <label class="voice-gen-label">Similarity Boost
+            <span id="simVal" style="color:var(--orange);margin-left:6px;font-weight:700;">75%</span>
+          </label>
+          <input type="range" min="0" max="100" value="75" style="width:100%;accent-color:var(--orange);margin-bottom:16px;"
+            oninput="document.getElementById('simVal').textContent=this.value+'%'">
+
+          <div class="cost-box">⚡ Generation Cost &nbsp;·&nbsp; Voice: <strong>30 credits / 1,000 chars</strong></div>
+          <button class="btn-generate" onclick="generateVoice()">🎤 Generate Voice</button>
+
+          <!-- Output -->
+          <div id="voiceOutput" style="display:none;margin-top:16px;">
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+              <span>🔊 Generated Audio</span>
+              <a id="voiceDownload" href="#" download="voice.mp3"
+                style="font-size:12px;background:var(--orange);color:#fff;text-decoration:none;
+                       padding:5px 12px;border-radius:6px;font-weight:700;display:flex;align-items:center;gap:5px;">
+                ⬇ Download MP3
+              </a>
+            </div>
+            <audio id="voiceAudio" controls style="width:100%;border-radius:8px;accent-color:var(--orange);"></audio>
+            <div style="font-size:11px;color:var(--text2);margin-top:6px;text-align:center;">
+              Model: eleven_multilingual_v2 · Supports Telugu, Tamil, Hindi, English
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Voice model list -->
+        <div class="voice-list-card">
+          <div class="voice-list-header">
+            <div class="voice-list-title">🎙 Voice Models <span style="font-size:11px;color:var(--text2);font-weight:400;margin-left:4px;" id="voiceCountLabel"></span></div>
+            <input class="voice-search" id="voiceSearch" placeholder="Search voices..." oninput="filterVoices(this.value)">
+          </div>
+          <div class="voice-list-scroll" id="voiceList"></div>
+          <div class="voice-footer" id="voiceFooter">
+            Powered by ElevenLabs · API key configured via <code style="color:var(--orange);">.env.local</code>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div>
+
+<!-- PAGE 9: DASHBOARD -->
+<div class="page" id="p-dashboard">
+  <nav>
+    <div class="logo" onclick="go('p-home')">
+      <div class="logo-icon">IF</div>
+      <div class="logo-text">Insideframe<span>.av</span></div>
+    </div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a>
+      <a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a>
+      <a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="go('p-signin')">Logout</button>
+  </nav>
+  <div class="main-content">
+    <div class="dash-header">
+      <div class="dash-title">Your Dashboard</div>
+      <button class="btn-orange" onclick="go('p-sell')">🚀 Upload New</button>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Sales</div>
+        <div class="stat-val orange">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Earnings</div>
+        <div class="stat-val green">₹0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Assets Listed</div>
+        <div class="stat-val blue">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rating</div>
+        <div class="stat-val yellow">4.8 ⭐</div>
+      </div>
+    </div>
+    <div class="assets-card">
+      <div class="assets-card-title">🎁 Your Assets</div>
+      <div class="no-assets">No assets yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 10: ADMIN COMMAND CENTER -->
+<div class="page" id="p-admin">
+  <nav>
+    <div class="logo" onclick="go('p-home')"><div class="logo-icon">IF</div><div class="logo-text">Insideframe<span>.av</span></div></div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a><a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a><a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+      <a class="admin-link" onclick="go('p-admin')">🔐 Admin</a>
+    </div>
+    <button class="btn-orange" onclick="doSignOut()">Logout</button>
+  </nav>
+  <div class="main-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
+      <h1 style="font-size:24px;font-weight:800;">🔐 Admin Command Center</h1>
+      <span id="adminEmailBadge" style="font-size:11px;background:rgba(240,90,26,.1);border:1px solid rgba(240,90,26,.3);border-radius:4px;padding:3px 10px;color:var(--orange);font-weight:700;"></span>
+    </div>
+
+    <!-- Stats row -->
+    <div class="admin-stats-row" id="adminStats">
+      <div class="admin-stat"><div class="admin-stat-label">Pending Review</div><div class="admin-stat-val" id="aStat-pending" style="color:#fbbf24;">—</div></div>
+      <div class="admin-stat"><div class="admin-stat-label">Total Assets</div><div class="admin-stat-val" id="aStat-total" style="color:var(--blue);">—</div></div>
+      <div class="admin-stat"><div class="admin-stat-label">Pending Payouts</div><div class="admin-stat-val" id="aStat-payouts" style="color:var(--orange);">—</div></div>
+      <div class="admin-stat"><div class="admin-stat-label">Platform Revenue</div><div class="admin-stat-val" id="aStat-revenue" style="color:var(--green);">₹0</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="admtab active" data-tab="adm-pending" onclick="switchAdminTab(this,'adm-pending')">✅ Pending Assets</button>
+      <button class="admtab" data-tab="adm-payouts" onclick="switchAdminTab(this,'adm-payouts')">💰 Payouts</button>
+      <button class="admtab" data-tab="adm-users" onclick="switchAdminTab(this,'adm-users')">👥 Users</button>
+      <button class="admtab" data-tab="adm-branding" onclick="switchAdminTab(this,'adm-branding')">🎨 Branding</button>
+    </div>
+
+    <!-- TAB: Pending Assets -->
+    <div id="adm-pending">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:700;">Assets awaiting review</span>
+        <button onclick="adminLoadPending()" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 14px;color:var(--text3);font-size:12px;cursor:pointer;font-family:inherit;">🔄 Refresh</button>
+      </div>
+      <div class="pending-grid" id="pendingGrid">
+        <div class="admin-empty" style="grid-column:1/-1;">Loading pending assets…</div>
+      </div>
+    </div>
+
+    <!-- TAB: Payouts -->
+    <div id="adm-payouts" style="display:none;">
+      <div style="margin-bottom:16px;">
+        <span style="font-size:14px;font-weight:700;">Payout Requests</span>
+        <p style="font-size:12px;color:var(--text2);margin-top:4px;">Commission: 10% platform fee · 90% to seller. Approve after manual UPI transfer.</p>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:auto;">
+        <table class="payout-table">
+          <thead>
+            <tr>
+              <th>Seller</th><th>Amount</th><th>Platform 10%</th><th>Seller Gets 90%</th><th>UPI ID</th><th>Requested</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="payoutTableBody">
+            <tr><td colspan="8" class="admin-empty">No payout requests yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: Users -->
+    <div id="adm-users" style="display:none;">
+      <div style="margin-bottom:16px;font-size:14px;font-weight:700;">Registered Users</div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:auto;">
+        <table class="payout-table">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Role</th><th>Credits</th><th>Joined</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="6" class="admin-empty">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: Branding -->
+    <div id="adm-branding" style="display:none;">
+      <div class="config-card">
+        <div class="config-title">Website Config</div>
+        <div class="form-group"><label class="form-label">Site Title</label><input class="form-input" id="cfgTitle" value="Insideframe.av"></div>
+        <div class="form-group"><label class="form-label">Hero Headline</label><input class="form-input" id="cfgHeadline" value="The Editor's Ecosystem"></div>
+        <div class="form-group"><label class="form-label">Hero Subtext</label><textarea class="notes-ta" id="cfgSubtext" style="height:72px;">LUTs, SFX, Overlays &amp; Client Review — all in one place.</textarea></div>
+        <div class="form-group"><label class="form-label">Telegram Link</label><input class="form-input" id="cfgTelegram" value="https://t.me/yourcommunity"></div>
+        <button class="btn-full" onclick="saveAdminConfig()">💾 Save Config</button>
+        <div id="cfgMsg" style="display:none;margin-top:10px;font-size:13px;text-align:center;"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 11: USER PORTFOLIO -->
+<div class="page" id="p-profile">
+  <nav>
+    <div class="logo" onclick="go('p-home')"><div class="logo-icon">IF</div><div class="logo-text">Insideframe<span>.av</span></div></div>
+    <div class="nav-links">
+      <a onclick="go('p-home')">Home</a><a onclick="go('p-marketplace')">Marketplace</a>
+      <a onclick="go('p-review')">Review</a><a onclick="go('p-sell')">Sell</a>
+      <a class="ai-link" onclick="go('p-ai')">✨ AI Studio</a>
+      <a onclick="go('p-dashboard')">Dashboard</a>
+    </div>
+    <button class="btn-orange" onclick="doSignOut()">Logout</button>
+  </nav>
+  <div class="profile-page-wrap">
+    <!-- Profile header -->
+    <div class="profile-header">
+      <div class="profile-avatar-wrap" id="profileAvatar">👤</div>
+      <div class="profile-info">
+        <div class="profile-name" id="profileName">Loading…</div>
+        <div class="profile-type" id="profileType">Creator</div>
+        <div class="profile-bio"  id="profileBio" style="color:var(--text2);">No bio yet.</div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="profile-stat-num" id="profileAssets">0</div><div class="profile-stat-lbl">Assets</div></div>
+          <div class="profile-stat"><div class="profile-stat-num" id="profileSales">0</div><div class="profile-stat-lbl">Sales</div></div>
+          <div class="profile-stat"><div class="profile-stat-num" id="profileRating" style="color:var(--yellow);">4.8 ⭐</div><div class="profile-stat-lbl">Rating</div></div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-contact" id="profileContactBtn" onclick="openContactProfile()">✉ Contact</button>
+          <button class="btn-follow"  id="profileFollowBtn"  onclick="toggleFollow(this)">+ Follow</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Masonry grid -->
+    <div style="font-size:16px;font-weight:800;margin-bottom:16px;" id="profileGridTitle">Assets</div>
+    <div class="masonry-grid" id="profileMasonry">
+      <div style="text-align:center;color:var(--text2);padding:40px;columns:unset;">Loading portfolio…</div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="checkout-overlay" id="checkoutOverlay" onclick="closeCheckout(event)">
+  <div class="checkout-box">
+    <div class="checkout-close" onclick="closeCheckoutDirect()">✕</div>
+    <img id="checkoutThumb" class="checkout-thumb" src="" alt="" onerror="this.style.display='none'">
+    <div class="checkout-title"   id="checkoutTitle">Asset Name</div>
+    <div class="checkout-creator" id="checkoutCreator">by Creator</div>
+    <div class="checkout-price-row">
+      <span class="checkout-price-label">Price</span>
+      <span id="checkoutPriceDisplay" class="checkout-price-free">FREE</span>
+    </div>
+    <div id="checkoutAction"></div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SUPABASE CLIENT
+// Replace the two values below with your project's credentials.
+// Dashboard → Settings → API → Project URL & anon/public key.
+// These are SAFE to expose in the browser (they are public keys).
+// ═══════════════════════════════════════════════════════════════
+const SUPA_URL  = 'https://cktmvxrfwogvvnykkgto.supabase.co';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrdG12eHJmd29ndnZueWtrZ3RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMjExMTYsImV4cCI6MjA5MDU5NzExNn0.k4KOPUMuWlAl25ibmrjDJw-LUqKhWRVJrQf_a8sOTKo';
+
+let _sb = null;
+function sb() {
+  if (_sb) return _sb;
+  if (window.supabase?.createClient) {
+    _sb = window.supabase.createClient(SUPA_URL, SUPA_ANON, {
+      auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: true }
+    });
+    return _sb;
+  }
+  // CDN not yet loaded — throw so caller sees the real error
+  throw new Error('Supabase SDK not loaded yet. Ensure the CDN script tag is in <head>.');
+}
+
+// Safe wrapper — returns null instead of throwing (for non-critical paths)
+function sbSafe() { try { return sb(); } catch(_) { return null; } }
+
+// Is Supabase configured?
+function isConfigured() { return true; /* Supabase keys configured */ }
+
+// ─── CURRENT USER STATE ─────────────────────────────────────────
+let currentUser = null;
+
+// ─── PASSWORD VISIBILITY TOGGLE ─────────────────────────────────
+function togglePwd(inputId, eyeEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  eyeEl.textContent = show ? '🙈' : '👁';
+  eyeEl.classList.toggle('visible', show);
+  input.focus();
+}
+
+// ─── INLINE MESSAGE HELPERS ─────────────────────────────────────
+function showMsg(elId, text, type = 'error') {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  el.innerHTML = text;
+  el.style.display = 'block';
+  const isErr = type === 'error';
+  const isOk  = type === 'success';
+  el.style.background   = isOk  ? 'rgba(34,197,94,.12)'  : 'rgba(239,68,68,.12)';
+  el.style.border       = `1px solid ${isOk ? '#22c55e' : isErr ? '#ef4444' : 'var(--orange)'}`;
+  el.style.color        = isOk  ? '#22c55e' : isErr ? '#ef4444' : 'var(--orange)';
+}
+function hideMsg(elId) {
+  const el = document.getElementById(elId);
+  if (el) el.style.display = 'none';
+}
+
+// ─── BUTTON SPINNER ─────────────────────────────────────────────
+function setBtnLoading(btn, loading, originalHTML) {
+  if (loading) {
+    btn._original = btn.innerHTML;
+    btn.disabled  = true;
+    btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="animation:spin .8s linear infinite;flex-shrink:0;">
+        <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,.3)" stroke-width="3" fill="none"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>${originalHTML}</span>`;
+  } else {
+    btn.disabled  = false;
+    btn.innerHTML = btn._original || originalHTML;
+  }
+}
+
+// ─── ENSURE PROFILE ROW ─────────────────────────────────────────
+// NOTE: Our schema has NO email column in profiles (email lives in auth.users).
+// This is correct — querying a user's email should always come from auth.users,
+// never duplicated in profiles (avoids sync issues + Supabase recommends this).
+async function ensureProfile(user, extra = {}) {
+  const client = sb();
+  if (!client || !user) return;
+
+  const base = {
+    id:         user.id,
+    full_name:  extra.full_name
+                || user.user_metadata?.full_name
+                || user.user_metadata?.name
+                || user.email?.split('@')[0]
+                || 'User',
+    avatar_url: user.user_metadata?.avatar_url || null,
+  };
+
+  if (extra.phone)     base.phone     = extra.phone;
+  if (extra.user_type) base.user_type = extra.user_type;
+
+  // upsert — safe to call multiple times; onConflict keeps existing data intact
+  const { error } = await client
+    .from('profiles')
+    .upsert(base, { onConflict: 'id', ignoreDuplicates: false });
+
+  if (error) console.warn('Profile upsert:', error.message);
+}
+
+// ─── UPDATE NAV UI FOR AUTH STATE ───────────────────────────────
+function syncNavAuth(user) {
+  currentUser = user;
+  // All logout buttons
+  document.querySelectorAll('.btn-orange[onclick*="p-signin"]').forEach(btn => {
+    btn.textContent = user ? 'Logout' : 'Login';
+    btn.onclick = user
+      ? () => doSignOut()
+      : () => go('p-signin');
+  });
+  // Admin link — only show for admin users
+  document.querySelectorAll('.admin-link').forEach(el => {
+    el.style.display = 'none'; // hide until we check role
+  });
+  if (user) {
+    const client = sb();
+    if (client) {
+      client.from('profiles').select('role').eq('id', user.id).single()
+        .then(({ data }) => {
+          if (data?.role === 'admin') {
+            document.querySelectorAll('.admin-link').forEach(el => {
+              el.style.display = '';
+            });
+          }
+        });
+    }
+  }
+}
+
+// ─── SIGN IN ────────────────────────────────────────────────────
+async function doSignIn() {
+  const email    = (document.getElementById('siEmail')?.value || '').trim();
+  const password = document.getElementById('siPassword')?.value || '';
+  const btn      = document.querySelector('#p-signin .btn-full');
+  hideMsg('siError');
+
+  if (!email)    return showMsg('siError', '⚠ Please enter your email address.');
+  if (!password) return showMsg('siError', '⚠ Please enter your password.');
+  if (!/\S+@\S+\.\S+/.test(email)) return showMsg('siError', '⚠ Please enter a valid email address.');
+
+  // file:// protocol — Supabase auth won't work directly
+  if (window.location.protocol === 'file:') {
+    return showMsg('siError',
+      '⚠ Open this file via a local server, not file://.<br>' +
+      'Run: <code style="background:#000;padding:2px 6px;border-radius:4px;">npx serve .</code> ' +
+      'then open <strong>http://localhost:3000</strong>');
+  }
+
+  setBtnLoading(btn, true, 'Sign In');
+
+  try {
+    const client = sb();
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      const msgMap = {
+        'Invalid login credentials': '⚠ Wrong email or password. Please try again.',
+        'Email not confirmed':        '⚠ Please verify your email first — check your inbox.',
+        'Too many requests':          '⚠ Too many attempts. Please wait a minute and try again.',
+      };
+      const msg = Object.entries(msgMap).find(([k]) => error.message.includes(k))?.[1]
+                  || `⚠ ${error.message}`;
+      setBtnLoading(btn, false, 'Sign In');
+      return showMsg('siError', msg);
+    }
+
+    // ✅ Success
+    await ensureProfile(data.user);
+    syncNavAuth(data.user);
+    document.getElementById('siEmail').value    = '';
+    document.getElementById('siPassword').value = '';
+    setBtnLoading(btn, false, 'Sign In');
+    go('p-home');
+
+  } catch (err) {
+    setBtnLoading(btn, false, 'Sign In');
+    showMsg('siError', `⚠ ${err.message}`);
+    console.error('doSignIn error:', err);
+  }
+}
+
+// ─── SIGN UP ────────────────────────────────────────────────────
+async function doSignUp() {
+  const name      = (document.getElementById('suName')?.value    || '').trim();
+  const email     = (document.getElementById('suEmail')?.value   || '').trim();
+  const password  = document.getElementById('suPassword')?.value || '';
+  const confirm   = document.getElementById('suConfirm')?.value  || '';
+  const phone     = (document.getElementById('suPhone')?.value   || '').trim();
+  const code      = document.getElementById('countryCode')?.value || '+91';
+  const roleEl    = document.querySelector('#p-signup .role-btn.active');
+  const userType  = roleEl
+    ? roleEl.textContent.trim().toLowerCase().replace(/[^a-z]/g, '')
+    : 'creator';
+  const btn = document.getElementById('suBtn');
+  hideMsg('suError');
+
+  // ── Validation ────────────────────────────────────────────────
+  if (!name)               return showMsg('suError', '⚠ Please enter your full name.');
+  if (!email)              return showMsg('suError', '⚠ Please enter your email address.');
+  if (!/\S+@\S+\.\S+/.test(email)) return showMsg('suError', '⚠ Please enter a valid email.');
+  if (!password)           return showMsg('suError', '⚠ Please enter a password.');
+  if (password.length < 8) return showMsg('suError', '⚠ Password must be at least 8 characters.');
+  if (password !== confirm) return showMsg('suError', '⚠ Passwords do not match. Please re-enter.');
+
+  setBtnLoading(btn, true, 'Create Account');
+
+  if (window.location.protocol === 'file:') {
+    setBtnLoading(btn, false, 'Create Account');
+    return showMsg('suError',
+      '⚠ Open via a local server, not file://.<br>' +
+      'Run: <code style="background:#000;padding:2px 6px;border-radius:4px;">npx serve .</code>');
+  }
+
+  try {
+  // ── Step 1: Register with Supabase Auth ──────────────────────
+  const { data, error } = await sb().auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: name },  // stored in auth.users.raw_user_meta_data
+    },
+  });
+
+  if (error) {
+    setBtnLoading(btn, false, 'Create Account');
+    const friendly = {
+      'User already registered':     '⚠ An account with this email already exists. Try signing in.',
+      'Password should be at least': '⚠ Password is too weak. Use at least 8 characters.',
+    };
+    const msg = Object.entries(friendly).find(([k]) => error.message.includes(k))?.[1]
+                || `⚠ ${error.message}`;
+    return showMsg('suError', msg);
+  }
+
+  // ── Step 2: Upsert profile row with extra fields ─────────────
+  // DB trigger creates the base row; we upsert to add phone + user_type.
+  // We do NOT insert email here — it lives only in auth.users (correct design).
+  if (data.user) {
+    await ensureProfile(data.user, {
+      full_name: name,
+      phone:     phone ? `${code}${phone}` : null,
+      user_type: userType,
+    });
+  }
+
+  setBtnLoading(btn, false, 'Create Account');
+
+  // ── Step 3: Navigate ─────────────────────────────────────────
+  // Store email so OTP page can display it and use it for verification
+  _otpEmail = email;
+  sessionStorage.setItem('if_signup_email', email);
+
+  if (data.session) {
+    // Email confirmation disabled → logged in immediately
+    syncNavAuth(data.user);
+    showMsg('suError', '✅ Account created! Welcome to Insideframe.av', 'success');
+    setTimeout(() => go('p-home'), 1200);
+  } else {
+    showMsg('suError', '✅ Account created! Check your email for the verification link.', 'success');
+    setTimeout(() => go('p-otp'), 1500);
+  }
+
+  } catch (err) {
+    setBtnLoading(btn, false, 'Create Account');
+    showMsg('suError', `⚠ ${err.message}`);
+    console.error('doSignUp error:', err);
+  }
+}
+
+// ─── SIGN OUT ───────────────────────────────────────────────────
+async function doSignOut() {
+  try { await sb().auth.signOut(); } catch(_) {}
+  currentUser = null;
+  syncNavAuth(null);
+  go('p-signin');
+}
+
+// ─── GOOGLE OAUTH ───────────────────────────────────────────────
+async function googleLogin() {
+  if (window.location.protocol === 'file:') {
+    return showMsg('siError',
+      '⚠ Google login requires a server.<br>Run: <code style="background:#000;padding:2px 6px;border-radius:4px;">npx serve .</code>');
+  }
+  try {
+    const { error } = await sb().auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.href.replace(/\?.*$/, ''),
+        queryParams: { access_type: 'offline', prompt: 'consent' },
+      },
+    });
+    if (error) showMsg('siError', `⚠ Google login failed: ${error.message}`);
+  } catch(err) {
+    showMsg('siError', `⚠ ${err.message}`);
+  }
+}
+
+// ─── AUTH STATE LISTENER ─────────────────────────────────────────
+function initAuthListener() {
+  try {
+    sb().auth.onAuthStateChange(async (event, session) => {
+      const user = session?.user || null;
+      console.info('[Auth]', event, user?.email || 'anonymous');
+
+    switch (event) {
+      case 'INITIAL_SESSION':
+        // Page loaded — check for existing session
+        if (user) {
+          syncNavAuth(user);
+          // If they land on an auth page while logged in, redirect to home
+          const authPages = ['p-signin', 'p-signup', 'p-otp'];
+          if (authPages.includes(document.querySelector('.page.active')?.id)) {
+            go('p-home');
+          }
+        }
+        break;
+
+      case 'SIGNED_IN':
+        await ensureProfile(user);
+        syncNavAuth(user);
+        // Navigate away from auth pages
+        if (['p-signin','p-signup','p-otp'].includes(document.querySelector('.page.active')?.id)) {
+          go('p-home');
+        }
+        break;
+
+      case 'SIGNED_OUT':
+        syncNavAuth(null);
+        go('p-signin');
+        break;
+
+      case 'TOKEN_REFRESHED':
+        syncNavAuth(user);
+        break;
+    }
+  });
+  } catch(err) {
+    console.warn('Auth listener error:', err.message);
+  }
+}
+
+// ─── OTP PAGE ───────────────────────────────────────────────────
+let _otpEmail      = '';   // set by doSignUp before navigating here
+let _otpTimer      = null;
+let _otpSeconds    = 60;
+
+// Called by go('p-otp') → sets email display and starts timer
+function initOtpPage() {
+  // Show email
+  const email = _otpEmail
+    || sessionStorage.getItem('if_signup_email')
+    || '';
+  const display = document.getElementById('otpEmailDisplay');
+  if (display) display.textContent = email || 'your email address';
+
+  // Clear inputs
+  for (let i = 0; i < 6; i++) {
+    const inp = document.getElementById(`otp${i}`);
+    if (inp) { inp.value = ''; inp.classList.remove('filled','error'); }
+  }
+  document.getElementById('otp0')?.focus();
+
+  hideMsg('otpError');
+
+  // Reset + start countdown
+  clearInterval(_otpTimer);
+  _otpSeconds = 60;
+  updateResendUI();
+  _otpTimer = setInterval(() => {
+    _otpSeconds--;
+    updateResendUI();
+    if (_otpSeconds <= 0) clearInterval(_otpTimer);
+  }, 1000);
+
+  // Wire up auto-advance + paste once
+  wireOtpInputs();
+}
+
+function updateResendUI() {
+  const cd   = document.getElementById('otpCountdown');
+  const wrap = document.getElementById('otpResendText');
+  if (!wrap) return;
+  if (_otpSeconds > 0) {
+    wrap.className  = 'resend-timer';
+    wrap.innerHTML  = `Resend in <strong id="otpCountdown">${_otpSeconds}</strong>s`;
+  } else {
+    wrap.className  = 'resend-link';
+    wrap.innerHTML  = 'Resend Code';
+    wrap.onclick    = doResendOtp;
+  }
+}
+
+let _otpWired = false;
+function wireOtpInputs() {
+  if (_otpWired) return;
+  _otpWired = true;
+
+  for (let i = 0; i < 6; i++) {
+    const inp = document.getElementById(`otp${i}`);
+    if (!inp) continue;
+
+    inp.addEventListener('input', e => {
+      const v = e.target.value.replace(/\D/g, '');
+      inp.value = v.slice(-1);
+      inp.classList.toggle('filled', inp.value !== '');
+      inp.classList.remove('error');
+      if (inp.value && i < 5) document.getElementById(`otp${i + 1}`)?.focus();
+      // Auto-submit when last box filled
+      if (i === 5 && inp.value) checkAllFilled();
+    });
+
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) {
+        document.getElementById(`otp${i - 1}`)?.focus();
+      }
+      if (e.key === 'ArrowLeft'  && i > 0) document.getElementById(`otp${i - 1}`)?.focus();
+      if (e.key === 'ArrowRight' && i < 5) document.getElementById(`otp${i + 1}`)?.focus();
+    });
+
+    // Handle paste on any box — distribute digits across all 6
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      digits.split('').forEach((d, idx) => {
+        const box = document.getElementById(`otp${idx}`);
+        if (box) { box.value = d; box.classList.add('filled'); }
+      });
+      document.getElementById(`otp${Math.min(digits.length, 5)}`)?.focus();
+      if (digits.length === 6) checkAllFilled();
+    });
+  }
+}
+
+function checkAllFilled() {
+  const code = getOtpCode();
+  if (code.length === 6) doVerifyOtp();
+}
+
+function getOtpCode() {
+  return Array.from({ length: 6 }, (_, i) =>
+    document.getElementById(`otp${i}`)?.value || ''
+  ).join('');
+}
+
+function setOtpError() {
+  for (let i = 0; i < 6; i++) {
+    const inp = document.getElementById(`otp${i}`);
+    if (inp) { inp.classList.add('error'); inp.value = ''; }
+  }
+  document.getElementById('otp0')?.focus();
+}
+
+// ── Verify OTP ──────────────────────────────────────────────────
+async function doVerifyOtp() {
+  const code  = getOtpCode();
+  const email = _otpEmail || sessionStorage.getItem('if_signup_email') || '';
+  const btn   = document.getElementById('otpVerifyBtn');
+  hideMsg('otpError');
+
+  if (code.length < 6) {
+    return showMsg('otpError', '⚠ Please enter all 6 digits of the code.');
+  }
+  if (!email) {
+    return showMsg('otpError', '⚠ Email not found — please go back and sign up again.');
+  }
+
+  setBtnLoading(btn, true, 'Verify OTP');
+
+  const { data, error } = await sb().auth.verifyOtp({
+    email,
+    token: code,
+    type:  'signup',
+  });
+
+  setBtnLoading(btn, false, 'Verify OTP');
+
+  if (error) {
+    setOtpError();
+    const msg = error.message.includes('expired')
+      ? '⚠ Code has expired. Click "Resend Code" to get a new one.'
+      : error.message.includes('invalid') || error.message.includes('Invalid')
+      ? '⚠ Incorrect code. Please check your email and try again.'
+      : `⚠ ${error.message}`;
+    return showMsg('otpError', msg);
+  }
+
+  // Success — profile ensured, sync nav, go to marketplace
+  clearInterval(_otpTimer);
+  await ensureProfile(data.user);
+  syncNavAuth(data.user);
+  sessionStorage.removeItem('if_signup_email');
+  _otpEmail = '';
+  go('p-marketplace');
+}
+
+// ── Resend OTP ──────────────────────────────────────────────────
+async function doResendOtp() {
+  const email = _otpEmail || sessionStorage.getItem('if_signup_email') || '';
+  if (!email) return;
+
+  const wrap = document.getElementById('otpResendText');
+  if (wrap) { wrap.textContent = 'Sending…'; wrap.className = 'resend-timer'; }
+
+  const { error } = await sb().auth.resend({ type: 'signup', email });
+
+  if (error) {
+    showMsg('otpError', `⚠ Could not resend: ${error.message}`);
+    if (wrap) { wrap.textContent = 'Resend Code'; wrap.className = 'resend-link'; wrap.onclick = doResendOtp; }
+    return;
+  }
+
+  // Reset timer
+  clearInterval(_otpTimer);
+  _otpSeconds = 60;
+  updateResendUI();
+  _otpTimer = setInterval(() => {
+    _otpSeconds--;
+    updateResendUI();
+    if (_otpSeconds <= 0) clearInterval(_otpTimer);
+  }, 1000);
+
+  showMsg('otpError', '✅ New code sent! Check your inbox.', 'success');
+  setTimeout(() => hideMsg('otpError'), 4000);
+}
+
+// ─── PAGE NAVIGATION ────────────────────────────────────────────
+const PROTECTED_PAGES = ['p-sell','p-ai','p-dashboard','p-review','p-admin'];
+
+function go(id) {
+  // Auth guard — redirect to sign-in if not logged in
+  if (PROTECTED_PAGES.includes(id) && !currentUser) {
+    showMsg('siError', '⚠ Please sign in to access this page.');
+    id = 'p-signin';
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  window.scrollTo(0, 0);
+  // Page-specific init
+  if (id === 'p-marketplace') renderGrid();
+  if (id === 'p-otp')         initOtpPage();
+  if (id === 'p-admin')       initAdminPage();
+  if (id === 'p-ai' && document.getElementById('voiceList')?.children.length === 0) renderVoiceList('');
+}
+
+// ─── CATEGORY & SUBCATEGORY DATA ───────────────────────────────
+const CATEGORIES = [
+  { id:'01', label:'Video Editing Assets', icon:'🎬', subs:['Raw Clips','B-Roll','Cinematic','Stock'], quick:null },
+  { id:'02', label:'Presets & LUTs',        icon:'🎨', subs:['Cinematic','Filters','Lightroom','Film Look'], quick:'luts' },
+  { id:'03', label:'Transitions',           icon:'⚡', subs:['Zoom','Spin','Glitch','Smooth'], quick:null },
+  { id:'04', label:'Text & Title Templates',icon:'📝', subs:['Lower Thirds','Kinetic','Subtitles'], quick:null },
+  { id:'05', label:'Sound Effects',         icon:'🔊', subs:['Whoosh','Click','Impact','UI'], quick:'sfx' },
+  { id:'06', label:'Background Music',      icon:'🎵', subs:['Cinematic','Vlog','Hype','Corporate'], quick:'sfx' },
+  { id:'07', label:'Overlays & Effects',    icon:'✨', subs:['Light Leaks','Film Burn','Smoke','Rain'], quick:'overlays' },
+  { id:'08', label:'Motion Graphics',       icon:'🎞', subs:['HUD','Logo Anim','Infographics'], quick:null },
+  { id:'09', label:'Thumbnail & Design Packs',icon:'🖼', subs:['Templates','Backgrounds','PNGs'], quick:null },
+  { id:'10', label:'Social Media Kits',     icon:'📱', subs:['Reel/Insta Templates','YT Elements'], quick:null },
+  { id:'11', label:'Project Files',         icon:'📁', subs:['Premiere Pro','AE','CapCut','DaVinci'], quick:null },
+];
+
+// Quick tag → category IDs mapping
+const QUICK_MAP = {
+  all:     null,
+  luts:    ['02'],
+  sfx:     ['05','06'],
+  overlays:['07'],
+};
+
+// ─── SAMPLE ASSET DATABASE (simulate Supabase rows) ─────────────
+const ASSET_DB = [
+  { id:1,  name:'Cinematic LUT Pack',      creator:'Pro Films',      price:299, cat:'02', sub:'Cinematic',        icon:'🎨', emoji:'🎨' },
+  { id:2,  name:'Film Look Bundle',        creator:'Color House',    price:199, cat:'02', sub:'Film Look',         icon:'🎨', emoji:'🎨' },
+  { id:3,  name:'Lightroom Presets Vol.1', creator:'Studio 9',       price:149, cat:'02', sub:'Lightroom',         icon:'🎨', emoji:'🎨' },
+  { id:4,  name:'Retro SFX Bundle',        creator:'Sound Labs',     price:149, cat:'05', sub:'Impact',            icon:'🔊', emoji:'🔊' },
+  { id:5,  name:'UI Click Pack',           creator:'AudioVault',     price:99,  cat:'05', sub:'UI',                icon:'🔊', emoji:'🔊' },
+  { id:6,  name:'Whoosh FX Set',           creator:'SFX Studio',     price:79,  cat:'05', sub:'Whoosh',            icon:'🔊', emoji:'🔊' },
+  { id:7,  name:'Neon Overlays Set',       creator:'VFX Studio',     price:199, cat:'07', sub:'Light Leaks',       icon:'✨', emoji:'✨' },
+  { id:8,  name:'Film Burn Pack',          creator:'Vintage Works',  price:129, cat:'07', sub:'Film Burn',         icon:'✨', emoji:'✨' },
+  { id:9,  name:'Smoke Overlays HD',       creator:'FX Labs',        price:169, cat:'07', sub:'Smoke',             icon:'✨', emoji:'✨' },
+  { id:10, name:'Rain Texture Overlays',   creator:'WeatherFX',      price:89,  cat:'07', sub:'Rain',              icon:'✨', emoji:'✨' },
+  { id:11, name:'Cinematic B-Roll Pack',   creator:'CineStock',      price:399, cat:'01', sub:'B-Roll',            icon:'🎬', emoji:'🎬' },
+  { id:12, name:'Raw City Clips',          creator:'Urban Lens',     price:249, cat:'01', sub:'Raw Clips',         icon:'🎬', emoji:'🎬' },
+  { id:13, name:'Glitch Transitions',      creator:'Glitch Works',   price:119, cat:'03', sub:'Glitch',            icon:'⚡', emoji:'⚡' },
+  { id:14, name:'Smooth Zoom Pack',        creator:'TransPro',       price:89,  cat:'03', sub:'Zoom',              icon:'⚡', emoji:'⚡' },
+  { id:15, name:'Lower Thirds Kit',        creator:'Title Studio',   price:149, cat:'04', sub:'Lower Thirds',      icon:'📝', emoji:'📝' },
+  { id:16, name:'Kinetic Typography',      creator:'MotionType',     price:199, cat:'04', sub:'Kinetic',           icon:'📝', emoji:'📝' },
+  { id:17, name:'Cinematic Score Pack',    creator:'FilmScore',      price:299, cat:'06', sub:'Cinematic',         icon:'🎵', emoji:'🎵' },
+  { id:18, name:'Vlog Background Music',   creator:'VlogBeats',      price:99,  cat:'06', sub:'Vlog',              icon:'🎵', emoji:'🎵' },
+  { id:19, name:'HUD Elements Pack',       creator:'HUDFactory',     price:229, cat:'08', sub:'HUD',               icon:'🎞', emoji:'🎞' },
+  { id:20, name:'Logo Animation Kit',      creator:'LogoMotion',     price:349, cat:'08', sub:'Logo Anim',         icon:'🎞', emoji:'🎞' },
+  { id:21, name:'YT Thumbnail Templates',  creator:'ThumbCraft',     price:129, cat:'09', sub:'Templates',         icon:'🖼', emoji:'🖼' },
+  { id:22, name:'Background Pack HD',      creator:'BG Studio',      price:79,  cat:'09', sub:'Backgrounds',       icon:'🖼', emoji:'🖼' },
+  { id:23, name:'Reel Template Bundle',    creator:'ReelMaster',     price:179, cat:'10', sub:'Reel/Insta Templates',icon:'📱', emoji:'📱' },
+  { id:24, name:'YT Elements Pack',        creator:'YTDesign',       price:159, cat:'10', sub:'YT Elements',       icon:'📱', emoji:'📱' },
+  { id:25, name:'Premiere Pro Project',    creator:'EditPro',        price:499, cat:'11', sub:'Premiere Pro',      icon:'📁', emoji:'📁' },
+  { id:26, name:'DaVinci Resolve Project', creator:'ColorEdit',      price:399, cat:'11', sub:'DaVinci',           icon:'📁', emoji:'📁' },
+  { id:27, name:'CapCut Template Pack',    creator:'CapCreator',     price:149, cat:'11', sub:'CapCut',            icon:'📁', emoji:'📁' },
+];
+
+// ─── MARKETPLACE STATE ──────────────────────────────────────────
+const mp = {
+  selectedCategory: null,
+  selectedQuick: 'all',
+  searchQuery: '',
+};
+
+// ─── FETCH — tries real API, falls back to local mock ───────────
+async function fetchAssets() {
+  // If running on a real server, hit the Supabase-backed API
+  // Try the Supabase-backed API; fall back to local mock if not on a server
+  const params = new URLSearchParams();
+  if (mp.searchQuery)      params.set('search',   mp.searchQuery);
+  if (mp.selectedCategory) params.set('category', mp.selectedCategory);
+  if (mp.selectedQuick !== 'all') params.set('quick', mp.selectedQuick);
+  params.set('pageSize', '32');
+
+  // Direct Supabase query (works from any origin)
+  try {
+    const client = sb();
+    let q = client.from('assets')
+      .select('id,title,price,category,category_label,subcategory,preview_url,creator_name,sales')
+      .eq('status','approved')
+      .order('created_at',{ascending:false})
+      .limit(32);
+    if (mp.selectedCategory)           q = q.eq('category', mp.selectedCategory);
+    const qm = { luts:'02', sfx:'05', overlays:'07' };
+    if (mp.selectedQuick !== 'all' && qm[mp.selectedQuick]) q = q.eq('category', qm[mp.selectedQuick]);
+    if (mp.searchQuery.trim()) q = q.or(`title.ilike.%${mp.searchQuery}%,subcategory.ilike.%${mp.searchQuery}%,creator_name.ilike.%${mp.searchQuery}%`);
+    const { data, error } = await q;
+    if (!error && data) return data;
+  } catch(_) {}
+
+  return fetchAssetsLocal();
+}
+
+function fetchAssetsLocal() {
+  let rows = [...ASSET_DB];
+  if (mp.selectedCategory) {
+    rows = rows.filter(r => r.cat === mp.selectedCategory);
+  } else if (mp.selectedQuick !== 'all') {
+    const ids = QUICK_MAP[mp.selectedQuick] || [];
+    if (ids.length) rows = rows.filter(r => ids.includes(r.cat));
+  }
+  if (mp.searchQuery.trim()) {
+    const q = mp.searchQuery.toLowerCase();
+    rows = rows.filter(r =>
+      r.name.toLowerCase().includes(q) ||
+      r.sub.toLowerCase().includes(q) ||
+      r.creator.toLowerCase().includes(q)
+    );
+  }
+  return rows;
+}
+
+// ─── RENDER GRID ────────────────────────────────────────────────
+async function renderGrid() {
+  const grid   = document.getElementById('mpGrid');
+  const wrap   = document.getElementById('activeFilterWrap');
+  const catBtn = document.getElementById('catBtn');
+  if (!grid) return;
+
+  // Show skeleton while fetching
+  grid.innerHTML = Array(8).fill(0).map(() => `
+    <div class="mp-card">
+      <div class="mp-thumb" style="background:var(--bg4);animation:skPulse 1.4s ease infinite;"></div>
+      <div class="sk" style="animation:skPulse 1.4s ease infinite .1s;"></div>
+      <div class="sk s60" style="animation:skPulse 1.4s ease infinite .2s;"></div>
+      <div class="sk s40" style="animation:skPulse 1.4s ease infinite .3s;"></div>
+    </div>`).join('');
+
+  const assets = await fetchAssets();
+
+  // Toggle orange border on Categories button when a filter is active
+  catBtn.classList.toggle('has-filter', !!mp.selectedCategory);
+
+  // Active filter pill
+  if (mp.selectedCategory) {
+    const cat = CATEGORIES.find(c => c.id === mp.selectedCategory);
+    wrap.innerHTML = `
+      <div class="active-filter-pill">
+        ${cat ? cat.icon : ''} ${cat ? cat.label : ''}
+        <span class="pill-x" onclick="clearCategoryFilter()" title="Clear filter">✕</span>
+      </div>`;
+  } else {
+    wrap.innerHTML = '';
+  }
+
+  // Result count
+  const countEl = document.getElementById('mpResultCount');
+  if (countEl) countEl.textContent = `${assets.length} asset${assets.length !== 1 ? 's' : ''} found`;
+
+  if (assets.length === 0) {
+    grid.innerHTML = `<div class="mp-empty">
+      <div style="font-size:38px;margin-bottom:12px;opacity:.3;">🔍</div>
+      <div style="font-weight:700;margin-bottom:6px;">No assets found</div>
+      <div style="font-size:13px;">Try a different search or category</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = assets.map(a => {
+    const catLabel = CATEGORIES.find(c => c.id === a.cat)?.label || '';
+    return `
+    <div class="asset-real-card">
+      <div class="asset-real-thumb" style="background:linear-gradient(135deg,#f05a1a,#c0392b);">
+        <span style="font-size:32px;">${a.emoji}</span>
+      </div>
+      <div class="asset-real-info">
+        <div class="asset-real-cat">${catLabel}</div>
+        <div class="asset-real-name">${a.name}</div>
+        <div class="asset-real-sub">${a.sub} · ${a.creator}</div>
+        <div class="asset-real-footer">
+          <span class="asset-real-price">₹${a.price}</span>
+          <button class="btn-quick-small">Quick View</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearCategoryFilter() {
+  mp.selectedCategory = null;
+  mp.selectedQuick = 'all';
+  syncQuickTabs();
+  renderGrid();
+}
+
+// ─── MODAL ──────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('catModal').classList.add('open');
+  document.getElementById('modalSearch').value = '';
+  renderModalCats('');
+}
+
+function closeModal() {
+  document.getElementById('catModal').classList.remove('open');
+}
+
+function closeCatModal(e) {
+  if (e.target === document.getElementById('catModal')) closeModal();
+}
+
+function renderModalCats(query) {
+  const grid = document.getElementById('modalCatsGrid');
+  const filtered = query
+    ? CATEGORIES.filter(c => c.label.toLowerCase().includes(query.toLowerCase()))
+    : CATEGORIES;
+
+  grid.innerHTML = filtered.map(cat => `
+    <div class="modal-cat-card ${mp.selectedCategory === cat.id ? 'active' : ''}"
+         onclick="selectCategoryFromModal('${cat.id}')">
+      <div class="modal-cat-icon">${cat.icon}</div>
+      <div>
+        <div class="modal-cat-name">${cat.id} • ${cat.label}</div>
+        <div class="modal-cat-count">${ASSET_DB.filter(a=>a.cat===cat.id).length} assets</div>
+      </div>
+    </div>`).join('');
+}
+
+function filterModalCats(q) { renderModalCats(q); }
+
+// Called when user clicks a category card inside modal
+function selectCategoryFromModal(catId) {
+  mp.selectedCategory = catId;
+  // If this category maps to a quick tag, activate that tab too
+  const cat = CATEGORIES.find(c => c.id === catId);
+  mp.selectedQuick = cat?.quick || 'all';
+  closeModal();
+  syncQuickTabs();
+  renderGrid();
+}
+
+// ─── QUICK TABS ─────────────────────────────────────────────────
+function onQuickTab(btn, key) {
+  mp.selectedQuick = key;
+  mp.selectedCategory = null; // clear modal category filter
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+// Sync quick tabs highlight to match current state
+function syncQuickTabs() {
+  const activeKey = mp.selectedQuick || 'all';
+  document.querySelectorAll('.ftab').forEach(b => {
+    b.classList.toggle('active', b.dataset.quick === activeKey);
+  });
+}
+
+// ─── SEARCH ─────────────────────────────────────────────────────
+function onMpSearch(val) {
+  mp.searchQuery = val;
+  renderGrid();
+}
+
+// ─── UI HELPERS ─────────────────────────────────────────────────
+function setRole(btn) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+// ─── AI STUDIO TAB SWITCHING ───────────────────────────────────
+function switchAiTab(btn, panelId) {
+  document.querySelectorAll('.aitab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['ai-img','ai-vid','ai-voice'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = (id === panelId) ? '' : 'none';
+  });
+  if (panelId === 'ai-voice') {
+    loadVoicesFromAPI();   // fetch real voices on first open
+  }
+}
+// legacy shim
+function setAitab(btn) {}
+
+// ─── ELEVENLABS CONFIG ──────────────────────────────────────────
+// ⚠️ Prototype mode — key in-browser for demo. Production: use /api proxy.
+const XI_KEY  = 'sk_2a2a1e261561dd2645397c815755667f91b6e0717315d29e';
+const XI_BASE = 'https://api.elevenlabs.io/v1';
+const XI_MODEL = 'eleven_multilingual_v2'; // Telugu, Tamil, Hindi, English ✓
+
+// ─── ELEVENLABS VOICE DATA ──────────────────────────────────────
+// Populated dynamically from /v1/voices on AI Studio open
+const VOICE_MODELS = [];
+let voicesLoaded = false;
+
+async function loadVoicesFromAPI() {
+  if (voicesLoaded) return;
+  const countLabel = document.getElementById('voiceCountLabel');
+  const container  = document.getElementById('voiceList');
+  if (container) container.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2);font-size:13px;">⏳ Loading voices…</div>`;
+
+  try {
+    const res = await fetch(`${XI_BASE}/voices`, {
+      headers: { 'xi-api-key': XI_KEY }
+    });
+    if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
+    const data = await res.json();
+
+    // Normalise into our shape
+    VOICE_MODELS.length = 0;
+    (data.voices || []).forEach(v => {
+      VOICE_MODELS.push({
+        id:      v.voice_id,
+        name:    v.name,
+        gender:  (v.labels?.gender || 'n').charAt(0).toLowerCase(),
+        accent:  v.labels?.accent || v.labels?.language || '—',
+        use:     v.labels?.use_case || v.labels?.description || '—',
+        labels:  Object.values(v.labels || {}).filter(Boolean).slice(0, 3),
+        preview: v.preview_url || null,
+      });
+    });
+
+    voicesLoaded = true;
+    renderVoiceList(document.getElementById('voiceSearch')?.value || '');
+  } catch (err) {
+    console.error('ElevenLabs voices fetch failed:', err);
+    if (container) container.innerHTML = `
+      <div style="padding:30px;text-align:center;color:var(--text2);font-size:13px;">
+        ⚠️ Could not load voices (CORS or key issue).<br>
+        <span style="font-size:11px;">Use a backend proxy in production.</span>
+      </div>`;
+    // Fall back to built-in list so UI still works
+    VOICE_MODELS.push(...FALLBACK_VOICES);
+    voicesLoaded = true;
+    renderVoiceList('');
+  }
+}
+
+// Fallback in case of CORS block (static HTML limitation)
+const FALLBACK_VOICES = [
+  { id:'21m00Tcm4TlvDq8ikWAM', name:'Rachel',    gender:'f', accent:'American',   use:'Narration',      labels:['calm','clear'],        preview:null },
+  { id:'AZnzlk1XvdvUeBnXmlld', name:'Domi',      gender:'f', accent:'American',   use:'Strong',         labels:['confident','strong'],  preview:null },
+  { id:'EXAVITQu4vr4xnSDxMaL', name:'Bella',     gender:'f', accent:'American',   use:'Soft',           labels:['soft','gentle'],       preview:null },
+  { id:'ErXwobaYiN019PkySvjV', name:'Antoni',    gender:'m', accent:'American',   use:'Narration',      labels:['smooth'],              preview:null },
+  { id:'MF3mGyEYCl7XYWbV9V6O', name:'Elli',      gender:'f', accent:'American',   use:'Emotional',      labels:['emotional','young'],   preview:null },
+  { id:'TxGEqnHWrfWFTfGW9XjX', name:'Josh',      gender:'m', accent:'American',   use:'Deep',           labels:['deep','young'],        preview:null },
+  { id:'VR6AewLTigWG4xSOukaG', name:'Arnold',    gender:'m', accent:'American',   use:'Crisp',          labels:['crisp','old'],         preview:null },
+  { id:'pNInz6obpgDQGcFmaJgB', name:'Adam',      gender:'m', accent:'American',   use:'Deep',           labels:['deep','narration'],    preview:null },
+  { id:'yoZ06aMxZJJ28mfd3POQ', name:'Sam',       gender:'m', accent:'American',   use:'Raspy',          labels:['raspy','young'],       preview:null },
+  { id:'onwK4e9ZLuTAKqWW03F9', name:'Daniel',    gender:'m', accent:'British',    use:'Deep',           labels:['deep','news'],         preview:null },
+  { id:'N2lVS1w4EtoT3dr4eOWO', name:'Callum',    gender:'m', accent:'Transatlantic',use:'Intense',      labels:['intense'],             preview:null },
+  { id:'CwhRBWXzGAHq8TQ4Fs17', name:'Roger',     gender:'m', accent:'American',   use:'Confident',      labels:['confident'],           preview:null },
+  { id:'XrExE9yKIg1WjnnlVkGX', name:'Matilda',   gender:'f', accent:'American',   use:'Warm',           labels:['warm','audiobook'],    preview:null },
+  { id:'IKne3meq5aSn9XLyUdCD', name:'Charlie',   gender:'m', accent:'Australian', use:'Natural',        labels:['natural'],             preview:null },
+  { id:'JBFqnCBsd6RMkjVDRZzb', name:'George',    gender:'m', accent:'British',    use:'Warm',           labels:['warm','raspy'],        preview:null },
+  { id:'piTKgcLEGmPE4e6mEKli', name:'Nicole',    gender:'f', accent:'American',   use:'Whispery',       labels:['whispery','audiobook'],preview:null },
+  { id:'bIHbv24MWmeRgasZH58o', name:'Will',      gender:'m', accent:'American',   use:'Friendly',       labels:['friendly'],            preview:null },
+  { id:'cgSgspJ2msm6clMCkdW9', name:'Jessica',   gender:'f', accent:'American',   use:'Expressive',     labels:['expressive','young'],  preview:null },
+  { id:'nPczCjzI2devNBz1zQrb', name:'Brian',     gender:'m', accent:'American',   use:'Deep',           labels:['deep','casual'],       preview:null },
+  { id:'pFZP5JQG7iQjIQuC4Bku', name:'Lily',      gender:'f', accent:'British',    use:'Warm',           labels:['warm','british'],      preview:null },
+];
+
+let selectedVoiceId = null;
+let currentAudio = null;
+let playingVoiceId = null;
+
+// ─── VOICE LIST RENDER ──────────────────────────────────────────
+function renderVoiceList(query) {
+  const container = document.getElementById('voiceList');
+  const countLabel = document.getElementById('voiceCountLabel');
+  if (!container) return;
+
+  const q = query.toLowerCase();
+  const filtered = VOICE_MODELS.filter(v =>
+    !q || v.name.toLowerCase().includes(q) ||
+    v.accent.toLowerCase().includes(q) ||
+    v.use.toLowerCase().includes(q) ||
+    v.labels.some(l => l.includes(q))
+  );
+
+  if (countLabel) countLabel.textContent = `(${filtered.length} voices)`;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="padding:30px;text-align:center;color:var(--text2);font-size:13px;">No voices match "${query}"</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(v => {
+    const initials = v.name.slice(0,2).toUpperCase();
+    const genderClass = v.gender === 'f' ? 'f' : v.gender === 'm' ? 'm' : '';
+    const genderLabel = v.gender === 'f' ? 'Female' : v.gender === 'm' ? 'Male' : 'Neutral';
+    const isSelected = v.id === selectedVoiceId;
+    return `
+    <div class="voice-item ${isSelected ? 'selected' : ''}" id="vi-${v.id}" onclick="selectVoice('${v.id}','${v.name.replace(/'/g,"\\'")}')">
+      <div class="voice-avatar" style="${isSelected ? 'background:linear-gradient(135deg,var(--orange),#c0392b)' : ''}">${initials}</div>
+      <div class="voice-info">
+        <div class="voice-name">${v.name}</div>
+        <div class="voice-meta">${v.accent} · ${v.use}</div>
+        <div class="voice-tags">
+          <span class="voice-gender-badge ${genderClass}">${genderLabel}</span>
+          ${v.labels.map(l=>`<span class="voice-tag">${l}</span>`).join('')}
+        </div>
+      </div>
+      <button class="voice-play-btn ${playingVoiceId===v.id ? 'playing':''}"
+        id="vpb-${v.id}"
+        onclick="event.stopPropagation();previewVoice('${v.id}','${v.name.replace(/'/g,"\\'")}',this)"
+        title="Preview ${v.name}">
+        ${playingVoiceId===v.id ? '⏸' : '▶'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function filterVoices(q) { renderVoiceList(q); }
+
+// Select a voice
+function selectVoice(id, name) {
+  selectedVoiceId = id;
+  const pill = document.getElementById('selectedVoiceName');
+  if (pill) pill.textContent = name;
+  renderVoiceList(document.getElementById('voiceSearch')?.value || '');
+}
+
+// ─── VOICE PREVIEW — real ElevenLabs stream ─────────────────────
+async function previewVoice(voiceId, voiceName, btn) {
+  // Stop any currently playing preview
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (playingVoiceId === voiceId) {
+    playingVoiceId = null;
+    renderVoiceList(document.getElementById('voiceSearch')?.value || '');
+    return;
+  }
+
+  playingVoiceId = voiceId;
+  renderVoiceList(document.getElementById('voiceSearch')?.value || '');
+
+  // 1️⃣ Use ElevenLabs preview_url if available (no credit cost, no CORS)
+  const voice = VOICE_MODELS.find(v => v.id === voiceId);
+  if (voice?.preview) {
+    currentAudio = new Audio(voice.preview);
+    currentAudio.crossOrigin = 'anonymous';
+    currentAudio.onended = () => { playingVoiceId = null; currentAudio = null; renderVoiceList(document.getElementById('voiceSearch')?.value || ''); };
+    currentAudio.onerror = () => fallbackTTSPreview(voiceId, voiceName);
+    try { await currentAudio.play(); return; } catch(_) {}
+  }
+
+  // 2️⃣ Fallback: TTS stream (uses credits — ~5 words)
+  await fallbackTTSPreview(voiceId, voiceName);
+}
+
+async function fallbackTTSPreview(voiceId, voiceName) {
+  try {
+    const res = await fetch(`${XI_BASE}/text-to-speech/${voiceId}/stream`, {
+      method: 'POST',
+      headers: { 'xi-api-key': XI_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: `Hi, I am ${voiceName}. How can I help you today?`,
+        model_id: XI_MODEL,
+        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+      }),
+    });
+    if (!res.ok) throw new Error(`XI ${res.status}`);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => { playingVoiceId = null; currentAudio = null; renderVoiceList(document.getElementById('voiceSearch')?.value || ''); };
+    await currentAudio.play();
+  } catch (err) {
+    console.warn('Preview failed (likely CORS in static file):', err.message);
+    // Tone fallback so UI still responds
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 260 + Math.random() * 160;
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+      osc.start(); osc.stop(ctx.currentTime + 1.4);
+    } catch(_) {}
+    setTimeout(() => { playingVoiceId = null; renderVoiceList(document.getElementById('voiceSearch')?.value || ''); }, 1500);
+  }
+}
+
+// ─── VOICE GENERATE — ElevenLabs TTS eleven_multilingual_v2 ─────
+async function generateVoice() {
+  const script = document.getElementById('voiceScript')?.value?.trim();
+  if (!script) { alert('Please enter a script first.'); return; }
+  if (!selectedVoiceId) { alert('Please select a voice from the list first.'); return; }
+
+  const btn = document.querySelector('#ai-voice .btn-generate');
+  const stability        = (document.querySelector('[oninput*="stabilityVal"]')?.value || 50) / 100;
+  const similarity_boost = (document.querySelector('[oninput*="simVal"]')?.value || 75) / 100;
+
+  btn.innerHTML = '⏳ Generating…'; btn.disabled = true;
+
+  try {
+    let blob;
+
+    if (window.location.protocol !== 'file:') {
+      // ── Production: use secure server proxy ────────────────────
+      const res = await fetch('/api/generate-voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voiceId: selectedVoiceId, text: script, stability, similarity_boost }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${res.status}`);
+      }
+      blob = await res.blob();
+    } else {
+      // ── Static file fallback: direct ElevenLabs call ──────────
+      const res = await fetch(`${XI_BASE}/text-to-speech/${selectedVoiceId}`, {
+        method: 'POST',
+        headers: { 'xi-api-key': XI_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+        body: JSON.stringify({ text: script, model_id: XI_MODEL, voice_settings: { stability, similarity_boost } }),
+      });
+      if (!res.ok) throw new Error(`ElevenLabs ${res.status}`);
+      blob = await res.blob();
+    }
+
+    const url   = URL.createObjectURL(blob);
+    const audio = document.getElementById('voiceAudio');
+    audio.src   = url;
+    const dlBtn = document.getElementById('voiceDownload');
+    if (dlBtn) {
+      dlBtn.href     = url;
+      const vName    = document.getElementById('selectedVoiceName')?.textContent || 'voice';
+      dlBtn.download = `insideframe_${vName.replace(/\s+/g,'_')}_${Date.now()}.mp3`;
+    }
+    document.getElementById('voiceOutput').style.display = 'block';
+    audio.play();
+
+  } catch (err) {
+    console.error('TTS error:', err);
+    const isCors = err.message.includes('fetch') || err.message.includes('Failed');
+    alert(isCors
+      ? 'CORS blocked. Run via: npx serve . (then open http://localhost:PORT)'
+      : `Voice generation failed: ${err.message}`);
+  }
+  btn.innerHTML = '🎤 Generate Voice'; btn.disabled = false;
+}
+
+// ─── LUMA AI VIDEO ENGINE ────────────────────────────────────────
+// ⚠️ Prototype: key in-browser. Production: use /api/generate-video proxy.
+const LUMA_KEY  = 'luma-api-poE_eETtUgH_KOhM6hoZEYqtXvaAm6Ff3_tzFQENTK4';
+const LUMA_BASE = 'https://api.lumalabs.ai/dream-machine/v1';
+
+let vidRatio       = '16:9';
+let vidPollTimer   = null;
+let vidElapsedSec  = 0;
+let vidElapsedTimer = null;
+let generatedVideos = [];   // persists across generations this session
+
+function setVidRatio(btn) {
+  document.querySelectorAll('.vid-ratio-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  vidRatio = btn.dataset.ratio;
+}
+
+// ── GENERATE ────────────────────────────────────────────────────
+async function generateVideo() {
+  const promptEl = document.getElementById('vidPrompt');
+  const cameraEl = document.getElementById('vidCamera');
+  const loopEl   = document.getElementById('vidLoop');
+
+  const basePrompt = promptEl?.value?.trim();
+  if (!basePrompt) { alert('Please describe your scene first.'); return; }
+
+  const fullPrompt = basePrompt + (cameraEl?.value || '');
+  const isLoop     = loopEl?.checked || false;
+
+  const btn = document.getElementById('vidGenBtn');
+  btn.innerHTML = '⏳ Submitting…'; btn.disabled = true;
+  showVidProgress('queued');
+  showDreamingCard(fullPrompt);
+
+  try {
+    let lumaId, generationId;
+
+    if (window.location.protocol !== 'file:') {
+      // ── Production: secure proxy (credits deducted server-side) ─
+      const res = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: fullPrompt, aspect_ratio: vidRatio, loop: isLoop }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${res.status}`);
+      }
+      const data = await res.json();
+      lumaId = data.lumaId; generationId = data.generationId;
+    } else {
+      // ── Static file: direct Luma call ───────────────────────────
+      const res = await fetch(`${LUMA_BASE}/generations`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${LUMA_KEY}`, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ prompt: fullPrompt, aspect_ratio: vidRatio, loop: isLoop }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.detail || err?.message || `Luma ${res.status}`);
+      }
+      const data = await res.json();
+      lumaId = data.id;
+    }
+
+    if (!lumaId) throw new Error('No generation ID returned from Luma');
+    btn.innerHTML = '🎬 Dreaming…';
+    startElapsedTimer();
+    pollLumaStatus(lumaId, fullPrompt, generationId);
+
+  } catch (err) {
+    console.error('Luma generate error:', err);
+    hidVidProgress(); removeDreamingCard();
+    btn.innerHTML = '📹 Generate Video'; btn.disabled = false;
+    const isCors = err.message.includes('fetch') || err.message.includes('Failed to fetch');
+    alert(isCors
+      ? 'CORS blocked. Run via: npx serve . (then open http://localhost:PORT)'
+      : `Luma error: ${err.message}`);
+  }
+}
+
+// ── POLLING ─────────────────────────────────────────────────────
+function pollLumaStatus(lumaId, prompt, generationId) {
+  let attempts = 0;
+  const maxAttempts = 60;
+
+  vidPollTimer = setInterval(async () => {
+    attempts++;
+    if (attempts > maxAttempts) {
+      clearInterval(vidPollTimer);
+      hidVidProgress(); removeDreamingCard(); resetVidBtn();
+      alert('Generation timed out after 5 minutes. Please try again.');
+      return;
+    }
+
+    try {
+      let data;
+      if (window.location.protocol !== 'file:') {
+        const params = new URLSearchParams({ lumaId });
+        if (generationId) params.set('generationId', generationId);
+        const res = await fetch(`/api/generate-video?${params}`);
+        if (!res.ok) return;
+        data = await res.json();
+        // proxy returns { state, videoUrl }
+        data.state = data.state; data.assets = { video: data.videoUrl };
+      } else {
+        const res = await fetch(`${LUMA_BASE}/generations/${lumaId}`, {
+          headers: { 'Authorization': `Bearer ${LUMA_KEY}`, 'Accept': 'application/json' }
+        });
+        if (!res.ok) return;
+        data = await res.json();
+      }
+
+      const state = (data.state || data.status || '').toLowerCase();
+      const pct   = estimateProgress(state, vidElapsedSec);
+
+      updateVidProgressBar(pct);
+      updateVidStages(state);
+
+      // Status label
+      const labels = {
+        queued:    '⏳ Queued — waiting in line…',
+        pending:   '⏳ Pending — starting up…',
+        dreaming:  '✨ Dreaming — Luma is imagining your scene…',
+        processing:'🎞 Processing — rendering frames…',
+        completed: '✅ Done!',
+        failed:    '❌ Failed',
+      };
+      document.getElementById('vidStatusLabel').textContent = labels[state] || `🔄 ${state}`;
+
+      if (state === 'completed') {
+        clearInterval(vidPollTimer);
+        clearInterval(vidElapsedTimer);
+        updateVidProgressBar(100);
+        setAllStagesDone();
+
+        const videoUrl = data.assets?.video || data.video_url || data.output?.url || null;
+        setTimeout(() => {
+          hidVidProgress();
+          removeDreamingCard();
+          resetVidBtn();
+          if (videoUrl) {
+            addVideoToGallery({ id: genId, url: videoUrl, prompt, ratio: vidRatio });
+          } else {
+            alert('Video completed but no URL returned. Check Luma dashboard.');
+          }
+        }, 800);
+
+      } else if (state === 'failed') {
+        clearInterval(vidPollTimer);
+        clearInterval(vidElapsedTimer);
+        hidVidProgress();
+        removeDreamingCard();
+        resetVidBtn();
+        alert(`Luma generation failed: ${data.failure_reason || 'Unknown error'}`);
+      }
+
+    } catch (pollErr) {
+      console.warn('Poll error (will retry):', pollErr.message);
+    }
+
+  }, 6000); // poll every 6 seconds
+}
+
+// ── GALLERY ─────────────────────────────────────────────────────
+function addVideoToGallery({ id, url, prompt, ratio }) {
+  generatedVideos.unshift({ id, url, prompt, ratio, ts: Date.now() });
+
+  const gallery = document.getElementById('vidGallery');
+  const empty   = document.getElementById('vidEmptyState');
+  if (empty) empty.style.display = 'none';
+
+  const card = document.createElement('div');
+  card.className = 'vid-card';
+  card.id = `vc-${id}`;
+  const shortPrompt = prompt.length > 80 ? prompt.slice(0, 80) + '…' : prompt;
+  const timeStr = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+
+  card.innerHTML = `
+    <video src="${url}" controls loop playsinline style="width:100%;max-height:220px;object-fit:cover;display:block;"></video>
+    <div class="vid-card-info">
+      <div class="vid-card-prompt" title="${prompt}">${shortPrompt}</div>
+      <div class="vid-card-meta">
+        <span class="vid-card-badge">${ratio} · ${timeStr}</span>
+        <div class="vid-card-actions">
+          <a href="${url}" download="luma_${id}.mp4" class="vid-dl-btn" target="_blank">⬇ Download</a>
+        </div>
+      </div>
+    </div>`;
+
+  // Insert at top
+  gallery.insertBefore(card, gallery.firstChild);
+
+  // Update count
+  const countEl = document.getElementById('vidGalleryCount');
+  if (countEl) countEl.textContent = `${generatedVideos.length} video${generatedVideos.length > 1 ? 's' : ''}`;
+
+  // Scroll gallery into view
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── UI HELPERS ──────────────────────────────────────────────────
+function showVidProgress(state) {
+  const el = document.getElementById('vidProgress');
+  if (el) el.style.display = 'block';
+  updateVidStages(state);
+  updateVidProgressBar(5);
+  vidElapsedSec = 0;
+  document.getElementById('vidElapsed').textContent = '0s';
+}
+
+function hidVidProgress() {
+  const el = document.getElementById('vidProgress');
+  if (el) el.style.display = 'none';
+}
+
+function resetVidBtn() {
+  const btn = document.getElementById('vidGenBtn');
+  if (btn) { btn.innerHTML = '📹 Generate Video'; btn.disabled = false; }
+}
+
+function startElapsedTimer() {
+  clearInterval(vidElapsedTimer);
+  vidElapsedSec = 0;
+  vidElapsedTimer = setInterval(() => {
+    vidElapsedSec++;
+    const el = document.getElementById('vidElapsed');
+    if (el) el.textContent = vidElapsedSec < 60 ? `${vidElapsedSec}s` : `${Math.floor(vidElapsedSec/60)}m ${vidElapsedSec%60}s`;
+  }, 1000);
+}
+
+function estimateProgress(state, elapsed) {
+  if (state === 'completed') return 100;
+  if (state === 'failed')    return 0;
+  // Smooth progress that looks meaningful without knowing the real %
+  const base = { queued:5, pending:12, dreaming:35, processing:70 }[state] || 20;
+  const bonus = Math.min(25, elapsed * 0.3); // drift up slowly
+  return Math.min(94, base + bonus);
+}
+
+function updateVidProgressBar(pct) {
+  const bar = document.getElementById('vidProgressBar');
+  if (bar) bar.style.width = `${pct}%`;
+}
+
+function updateVidStages(state) {
+  const map = {
+    queued:     ['queued'],
+    pending:    ['queued'],
+    dreaming:   ['queued','dreaming'],
+    processing: ['queued','dreaming','rendering'],
+    completed:  ['queued','dreaming','rendering','done'],
+  };
+  const active = map[state] || ['queued'];
+  ['queued','dreaming','rendering','done'].forEach(s => {
+    const el = document.getElementById(`vstage-${s}`);
+    if (!el) return;
+    const isDone = state === 'completed' || (s !== 'done' && active.includes(s) && active.length > active.indexOf(s)+1);
+    el.classList.toggle('done',   isDone && state === 'completed');
+    el.classList.toggle('active', active.includes(s) && state !== 'completed');
+  });
+}
+
+function setAllStagesDone() {
+  ['queued','dreaming','rendering','done'].forEach(s => {
+    const el = document.getElementById(`vstage-${s}`);
+    if (el) { el.classList.remove('active'); el.classList.add('done'); }
+  });
+}
+
+function showDreamingCard(prompt) {
+  const gallery = document.getElementById('vidGallery');
+  const empty   = document.getElementById('vidEmptyState');
+  if (empty) empty.style.display = 'none';
+
+  const card = document.createElement('div');
+  card.className = 'vid-dreaming-card';
+  card.id = 'vid-dreaming-placeholder';
+  const shortPrompt = prompt.length > 70 ? prompt.slice(0, 70) + '…' : prompt;
+  card.innerHTML = `
+    <div class="vid-spinner"></div>
+    <div style="font-size:13px;font-weight:700;color:var(--orange);margin-bottom:6px;">✨ Luma is Dreaming…</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.5;">"${shortPrompt}"</div>
+    <div style="font-size:11px;color:var(--text2);margin-top:10px;">Polling every 6s · Usually ready in 60–120s</div>`;
+  gallery.insertBefore(card, gallery.firstChild);
+}
+
+function removeDreamingCard() {
+  const el = document.getElementById('vid-dreaming-placeholder');
+  if (el) el.remove();
+  // If gallery is empty show empty state again
+  if (generatedVideos.length === 0) {
+    const empty = document.getElementById('vidEmptyState');
+    if (empty) empty.style.display = '';
+  }
+}
+
+// ─── TOGGLE (Show number publicly) ──────────────────────────────
+function flipToggle() {
+  const cb  = document.getElementById('sellShowPhone');
+  const ui  = document.getElementById('sellToggleUI');
+  const lbl = document.getElementById('sellToggleLabel');
+  if (!cb || !ui) return;
+  cb.checked = !cb.checked;
+  ui.classList.toggle('on', cb.checked);
+  if (lbl) lbl.style.color = cb.checked ? 'var(--orange)' : 'var(--text2)';
+}
+
+// ─── SELL PROGRESS STEPS ────────────────────────────────────────
+function setStep(step, state, label) {
+  const icon = document.getElementById(`spi-${step}`);
+  const lbl  = document.getElementById(`spl-${step}`);
+  if (!icon) return;
+  icon.className = `sell-step-icon ${state}`;
+  const icons = { wait: step === 'thumb' ? '1' : step === 'file' ? '2' : '3', running: '⟳', done: '✓', error: '✕' };
+  icon.textContent = icons[state] || '?';
+  if (lbl && label) { lbl.textContent = label; lbl.className = `sell-step-label${state === 'running' ? ' active' : ''}`; }
+}
+
+function showSellProgress(show) {
+  const el = document.getElementById('sellProgress');
+  if (el) el.style.display = show ? 'block' : 'none';
+}
+
+function resetSellSteps() {
+  ['thumb','file','db'].forEach((s, i) => setStep(s, 'wait', ['Upload thumbnail','Upload asset file','Save to marketplace'][i]));
+}
+
+// ─── UPLOAD FILE TO SUPABASE STORAGE ────────────────────────────
+// Returns { publicUrl, path } or throws
+async function uploadToStorage(bucket, file, userId) {
+  const client = sb();
+  if (!client) throw new Error('Supabase not configured');
+
+  const ext  = file.name.split('.').pop() || 'bin';
+  const path = `${userId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+
+  const { error: upErr } = await client.storage
+    .from(bucket)
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (upErr) throw new Error(`${bucket} upload: ${upErr.message}`);
+
+  if (bucket === 'thumbnails') {
+    const { data } = client.storage.from(bucket).getPublicUrl(path);
+    return { url: data.publicUrl, path };
+  } else {
+    // Private bucket → signed URL (48 h)
+    const { data, error: signErr } = await client.storage
+      .from(bucket)
+      .createSignedUrl(path, 60 * 60 * 48);
+    if (signErr) throw new Error(`Signed URL: ${signErr.message}`);
+    return { url: data.signedUrl, path };
+  }
+}
+
+// ─── SUBMIT SELL ─────────────────────────────────────────────────
+async function submitSell() {
+  // ── Collect + validate ────────────────────────────────────────
+  const title        = (document.getElementById('sellTitle')?.value       || '').trim();
+  const desc         = (document.getElementById('sellDesc')?.value        || '').trim();
+  const bio          = (document.getElementById('sellBio')?.value         || '').trim();
+  const creatorName  = (document.getElementById('sellCreatorName')?.value || '').trim();
+  const creatorEmail = (document.getElementById('sellCreatorEmail')?.value|| '').trim();
+  const priceRaw     = document.getElementById('sellPrice')?.value        || '0';
+  const price        = parseFloat(priceRaw) || 0;
+  const category     = document.getElementById('sellCategory')?.value     || '';
+  const catOption    = document.getElementById('sellCategory')?.selectedOptions?.[0];
+  const categoryLabel = (catOption?.text || '').replace(/^\d+\s*•\s*/, '').trim();
+  const subcategory  = (document.getElementById('subCategory')?.value     || '').trim();
+  const phone        = (document.getElementById('sellPhone')?.value       || '').trim();
+  const showPhone    = document.getElementById('sellShowPhone')?.checked   || false;
+  const thumbFile    = document.getElementById('thumbFileInput')?.files?.[0]  || null;
+  const assetFile    = document.getElementById('assetFileInput')?.files?.[0]  || null;
+
+  showSellMsg('', '');   // clear previous message
+
+  if (!title)    return showSellMsg('⚠ Please enter an asset title.', 'error');
+  if (!category) return showSellMsg('⚠ Please select a category.', 'error');
+  if (assetFile && assetFile.size > 200 * 1024 * 1024)
+    return showSellMsg('⚠ Asset file exceeds 200 MB limit.', 'error');
+
+  const btn = document.getElementById('publishBtn');
+  setBtnLoading(btn, true, '✨ Publish Asset');
+  showSellProgress(true);
+  resetSellSteps();
+
+  let preview_url = null, preview_path = null;
+  let download_url = null, download_path = null;
+
+  try {
+    // ── Get current user ─────────────────────────────────────────
+    const { data: { user } } = await sb().auth.getUser();
+    if (!user) {
+      showSellMsg('⚠ You must be signed in to publish assets.', 'error');
+      setBtnLoading(btn, false, '✨ Publish Asset');
+      showSellProgress(false);
+      return;
+    }
+
+    // ── STEP 1: Upload thumbnail ──────────────────────────────────
+    setStep('thumb', 'running', 'Uploading thumbnail…');
+    if (thumbFile) {
+      const result = await uploadToStorage('thumbnails', thumbFile, user.id);
+      preview_url  = result.url;
+      preview_path = result.path;
+      setStep('thumb', 'done', `Thumbnail uploaded ✓`);
+    } else {
+      setStep('thumb', 'done', 'No thumbnail (skipped)');
+    }
+
+    // ── STEP 2: Upload asset file ─────────────────────────────────
+    setStep('file', 'running', 'Uploading asset file…');
+    if (assetFile) {
+      const result  = await uploadToStorage('assets', assetFile, user.id);
+      download_url  = result.url;
+      download_path = result.path;
+      setStep('file', 'done', `File uploaded ✓`);
+    } else {
+      setStep('file', 'done', 'No file (skipped)');
+    }
+
+    // ── STEP 3: Insert into Supabase DB ──────────────────────────
+    setStep('db', 'running', 'Saving to marketplace…');
+
+    // phone only included if toggle is ON
+    const publishedPhone = showPhone && phone ? phone : null;
+
+    const { error: dbErr } = await sb()
+      .from('assets')
+      .insert({
+        seller_id:      user.id,
+        title,
+        description:    desc    || null,
+        creator_bio:    bio     || null,
+        creator_name:   creatorName  || null,
+        creator_email:  creatorEmail || null,
+        price,
+        category,
+        category_label: categoryLabel || null,
+        subcategory:    subcategory   || null,
+        preview_url,
+        preview_path,
+        download_url,
+        download_path,
+        // store phone only if user opted in
+        ...(publishedPhone ? { tags: [`phone:${publishedPhone}`] } : {}),
+        status: 'pending',
+      });
+
+    if (dbErr) throw new Error(dbErr.message);
+
+    setStep('db', 'done', 'Saved — pending admin review ✓');
+
+    // ── SUCCESS ───────────────────────────────────────────────────
+    showSellMsg('✅ Asset submitted for review! You will be notified within 24-48h.', 'success');
+    setBtnLoading(btn, false, '✨ Publish Asset');
+
+    // Reset form after 2s then navigate to dashboard
+    setTimeout(() => {
+      resetSellForm();
+      go('p-dashboard');
+    }, 2200);
+
+  } catch (err) {
+    console.error('submitSell error:', err);
+    // Mark the failing step as error
+    ['thumb','file','db'].forEach(s => {
+      if (document.getElementById(`spi-${s}`)?.classList.contains('running')) {
+        setStep(s, 'error', err.message);
+      }
+    });
+    showSellMsg(`❌ ${err.message}`, 'error');
+    setBtnLoading(btn, false, '✨ Publish Asset');
+  }
+}
+
+function resetSellForm() {
+  ['sellTitle','sellDesc','sellBio','sellCreatorName','sellCreatorEmail','sellPrice','sellPhone']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const cb  = document.getElementById('sellShowPhone');
+  const ui  = document.getElementById('sellToggleUI');
+  if (cb) cb.checked = false;
+  if (ui) ui.classList.remove('on');
+  const thumb = document.getElementById('thumbFileInput');
+  const asset = document.getElementById('assetFileInput');
+  if (thumb) thumb.value = '';
+  if (asset) asset.value = '';
+  document.getElementById('thumbPreviewWrap').innerHTML = '🖼';
+  const fn = document.getElementById('assetFileName');
+  if (fn) { fn.textContent = 'Click to upload file'; fn.style.color = ''; }
+  showSellProgress(false);
+  resetSellSteps();
+}
+
+function showSellMsg(text, type) {
+  const el = document.getElementById('sellMsg');
+  if (!el) return;
+  if (!text) { el.style.display = 'none'; return; }
+  el.innerHTML = text;
+  el.style.display = 'block';
+  el.style.background = type === 'success' ? 'rgba(34,197,94,.12)' : type === 'error' ? 'rgba(239,68,68,.12)' : 'rgba(240,90,26,.1)';
+  el.style.border     = `1px solid ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : 'var(--orange)'}`;
+  el.style.color      = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : 'var(--orange)';
+  if (type !== 'success') setTimeout(() => { el.style.display = 'none'; }, 8000);
+}
+
+function previewThumb(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const wrap = document.getElementById('thumbPreviewWrap');
+  if (wrap) {
+    const url = URL.createObjectURL(file);
+    wrap.innerHTML = `<img src="${url}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;margin-bottom:6px;">`;
+  }
+}
+
+function previewAssetFile(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const el = document.getElementById('assetFileName');
+  if (el) {
+    const mb = (file.size / 1024 / 1024).toFixed(1);
+    el.textContent = `✅ ${file.name} (${mb} MB)`;
+    el.style.color = 'var(--green)';
+  }
+}
+
+// (injected via JS so it doesn't need a separate <style> block)
+(function addSkPulse() {
+  if (document.getElementById('skPulseStyle')) return;
+  const s = document.createElement('style');
+  s.id = 'skPulseStyle';
+  s.textContent = `@keyframes skPulse { 0%,100%{opacity:.4} 50%{opacity:.9} }`;
+  document.head.appendChild(s);
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN COMMAND CENTER
+// ═══════════════════════════════════════════════════════════════
+function switchAdminTab(btn, tabId) {
+  document.querySelectorAll('.admtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['adm-pending','adm-payouts','adm-users','adm-branding'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = id === tabId ? '' : 'none';
+  });
+  if (tabId === 'adm-pending') adminLoadPending();
+  if (tabId === 'adm-payouts') adminLoadPayouts();
+  if (tabId === 'adm-users')   adminLoadUsers();
+}
+// legacy shim
+function setAdmtab(btn) {}
+
+// init admin page
+async function initAdminPage() {
+  const user = currentUser;
+  const badge = document.getElementById('adminEmailBadge');
+  if (badge && user) badge.textContent = user.email || 'Admin';
+  await adminLoadPending();
+  await adminLoadStats();
+}
+
+async function adminLoadStats() {
+  const client = sb();
+  const [{ count: total }, { count: pending }, { count: pendingPay }] = await Promise.all([
+    client.from('assets').select('*',{count:'exact',head:true}),
+    client.from('assets').select('*',{count:'exact',head:true}).eq('status','pending'),
+    client.from('credit_transactions').select('*',{count:'exact',head:true}).eq('reason','payout_request'),
+  ]);
+  const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('aStat-total',   total    ?? 0);
+  set('aStat-pending', pending  ?? 0);
+  set('aStat-payouts', pendingPay ?? 0);
+}
+
+async function adminLoadPending() {
+  const grid = document.getElementById('pendingGrid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="admin-empty" style="grid-column:1/-1;">Loading…</div>';
+
+  const { data, error } = await sb()
+    .from('assets')
+    .select('id,title,description,price,category_label,subcategory,preview_url,status,creator_name,created_at,seller_id')
+    .in('status',['pending','approved','rejected'])
+    .order('created_at',{ascending:false})
+    .limit(24);
+
+  if (error || !data?.length) {
+    grid.innerHTML = '<div class="admin-empty" style="grid-column:1/-1;">🎉 No pending assets</div>';
+    return;
+  }
+  grid.innerHTML = data.map(a => adminAssetCard(a)).join('');
+}
+
+function adminAssetCard(a) {
+  const preview = a.preview_url
+    ? `<img src="${a.preview_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div class=no-preview>🎨</div>'">`
+    : `<div class="no-preview">🎨</div>`;
+  return `
+  <div class="pending-card" id="ac-${a.id}">
+    <div class="pending-preview">
+      ${preview}
+      <span class="pending-status-badge ${a.status}">${a.status}</span>
+    </div>
+    <div class="pending-info">
+      <div class="pending-title" title="${a.title}">${a.title}</div>
+      <div class="pending-meta">${a.category_label || ''} ${a.subcategory ? '· '+a.subcategory : ''} · by ${a.creator_name || 'Unknown'}</div>
+      <div class="pending-price">${a.price > 0 ? '₹'+a.price : 'FREE'}</div>
+      <div class="pending-actions">
+        <button class="btn-approve" onclick="adminApprove('${a.id}')">✓ Approve</button>
+        <button class="btn-reject"  onclick="adminReject('${a.id}')">✕ Reject</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+
+async function adminApprove(assetId) {
+  const { error } = await sb().from('assets').update({status:'approved'}).eq('id',assetId);
+  if (error) return alert('Error: '+error.message);
+  const card = document.getElementById(`ac-${assetId}`);
+  if (card) {
+    const badge = card.querySelector('.pending-status-badge');
+    if (badge) { badge.textContent='approved'; badge.className='pending-status-badge approved'; }
+    card.style.opacity='.6';
+  }
+  await adminLoadStats();
+}
+
+async function adminReject(assetId) {
+  const reason = prompt('Rejection reason (optional):') ?? '';
+  const { error } = await sb().from('assets').update({status:'rejected', description: reason||null}).eq('id',assetId);
+  if (error) return alert('Error: '+error.message);
+  const card = document.getElementById(`ac-${assetId}`);
+  if (card) {
+    const badge = card.querySelector('.pending-status-badge');
+    if (badge) { badge.textContent='rejected'; badge.className='pending-status-badge rejected'; }
+    card.style.opacity='.5';
+  }
+}
+
+// ── PAYOUT MANAGEMENT ───────────────────────────────────────────
+// Commission logic: 10% platform fee, 90% to seller
+// When asset is purchased → deduct price, credit seller 90%
+// Payout requests stored in credit_transactions with reason='payout_request'
+function calcCommission(price) {
+  const platform = Math.round(price * 0.10 * 100) / 100;
+  const seller   = Math.round(price * 0.90 * 100) / 100;
+  return { platform, seller };
+}
+
+async function adminLoadPayouts() {
+  const tbody = document.getElementById('payoutTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="8" class="admin-empty">Loading…</td></tr>';
+
+  const { data } = await sb()
+    .from('credit_transactions')
+    .select('id,user_id,amount,created_at,meta,reason')
+    .eq('reason','payout_request')
+    .order('created_at',{ascending:false});
+
+  if (!data?.length) { tbody.innerHTML='<tr><td colspan="8" class="admin-empty">No payout requests</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(r => {
+    const amt  = Math.abs(r.amount);
+    const comm = calcCommission(amt);
+    const upi  = r.meta?.upi_id || '—';
+    const date = new Date(r.created_at).toLocaleDateString();
+    return `<tr>
+      <td>${r.meta?.name || r.user_id.slice(0,8)}</td>
+      <td>₹${amt}</td><td style="color:var(--orange);">₹${comm.platform}</td><td style="color:var(--green);">₹${comm.seller}</td>
+      <td><span class="upi-badge">${upi}</span></td><td>${date}</td>
+      <td><span class="payout-status ${r.meta?.paid?'paid':'pending'}">${r.meta?.paid?'Paid':'Pending'}</span></td>
+      <td><button class="btn-approve-payout" onclick="approvePayout('${r.id}','${r.user_id}',${comm.seller})">Approve</button></td></tr>`;
+  }).join('');
+}
+
+async function approvePayout(txId, userId, amount) {
+  if (!confirm(`Confirm payout of ₹${amount} to this seller via UPI?`)) return;
+  await sb().from('credit_transactions').update({ meta: { paid: true } }).eq('id', txId);
+  await adminLoadPayouts();
+}
+
+async function adminLoadUsers() {
+  const tbody = document.getElementById('usersTableBody');
+  if (!tbody) return;
+  const { data } = await sb().from('profiles').select('id,full_name,role,credits,user_type,created_at').order('created_at',{ascending:false}).limit(50);
+  if (!data?.length) { tbody.innerHTML='<tr><td colspan="6" class="admin-empty">No users found</td></tr>'; return; }
+  tbody.innerHTML = data.map(u => `<tr>
+    <td><span style="cursor:pointer;color:var(--orange);" onclick="viewProfile('${u.id}')">${u.full_name||'—'}</span></td>
+    <td style="color:var(--text2);font-size:12px;">${u.id.slice(0,12)}…</td>
+    <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;background:${u.role==='admin'?'rgba(240,90,26,.15)':'var(--bg3)'};border:1px solid ${u.role==='admin'?'var(--orange)':'var(--border)'};">${u.role}</span></td>
+    <td style="color:var(--green);">${u.credits}</td>
+    <td style="color:var(--text2);font-size:12px;">${new Date(u.created_at).toLocaleDateString()}</td>
+    <td><button onclick="adminGrantCredits('${u.id}')" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:11px;cursor:pointer;color:#fff;font-family:inherit;">+ Credits</button>
+        <button onclick="viewProfile('${u.id}')" style="background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:4px 10px;font-size:11px;cursor:pointer;color:#fff;font-family:inherit;margin-left:4px;">👤 Profile</button></td>
+  </tr>`).join('');
+}
+
+async function adminGrantCredits(userId) {
+  const amt = parseInt(prompt('Credits to add:') || '0');
+  if (!amt || amt <= 0) return;
+  await sb().rpc('add_credits',{ p_user_id:userId, p_amount:amt, p_reason:'admin_grant' });
+  adminLoadUsers();
+}
+
+function saveAdminConfig() {
+  const msg = document.getElementById('cfgMsg');
+  if (msg) { msg.textContent='✅ Config saved!'; msg.style.display='block'; msg.style.color='var(--green)'; setTimeout(()=>msg.style.display='none',3000); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// USER PORTFOLIO / PINTEREST MASONRY
+// ═══════════════════════════════════════════════════════════════
+let _profileUserId = null;
+
+async function viewProfile(userId) {
+  _profileUserId = userId;
+  go('p-profile');
+  await loadProfileData(userId);
+}
+
+async function loadProfileData(userId) {
+  const [{ data: profile }, { data: assets }] = await Promise.all([
+    sb().from('profiles').select('full_name,user_type,avatar_url,credits,rating').eq('id',userId).single(),
+    sb().from('assets').select('id,title,price,category_label,subcategory,preview_url,sales').eq('seller_id',userId).eq('status','approved').order('created_at',{ascending:false}),
+  ]);
+
+  const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('profileName',   profile?.full_name || 'Creator');
+  set('profileType',   profile?.user_type || 'creator');
+  set('profileBio',    profile?.bio || 'No bio yet.');
+  set('profileAssets', assets?.length || 0);
+  set('profileSales',  (assets||[]).reduce((s,a)=>s+(a.sales||0),0));
+  set('profileRating', (profile?.rating || 4.8)+' ⭐');
+
+  const av = document.getElementById('profileAvatar');
+  if (av) {
+    if (profile?.avatar_url) av.innerHTML=`<img src="${profile.avatar_url}" alt="">`;
+    else av.textContent = (profile?.full_name||'?').charAt(0).toUpperCase();
+  }
+  set('profileGridTitle', `${profile?.full_name?.split(' ')[0] || 'Creator'}'s Assets`);
+
+  renderMasonry(assets || []);
+}
+
+
+function renderMasonry(assets) {
+  const grid = document.getElementById('profileMasonry');
+  if (!grid) return;
+  if (!assets.length) { grid.innerHTML='<div style="text-align:center;color:var(--text2);padding:40px;">No published assets yet</div>'; return; }
+
+  const heights = ['tall','medium','short','medium','tall','short'];
+  grid.innerHTML = assets.map((a,i) => {
+    const h = heights[i % heights.length];
+    const hpx = {tall:220,medium:180,short:140}[h];
+    const thumb = a.preview_url
+      ? `<img src="${a.preview_url}" class="masonry-thumb" style="height:${hpx}px;" onerror="this.outerHTML='<div class=masonry-thumb-ph style=height:${hpx}px;>🎨</div>'">`
+      : `<div class="masonry-thumb-ph" style="height:${hpx}px;">🎨</div>`;
+    return `<div class="masonry-item">
+      <div class="masonry-card" onclick="openCheckout(${JSON.stringify({id:a.id,title:a.title,price:a.price,preview_url:a.preview_url||'',creator_name:''}).replace(/"/g,'&quot;')})">
+        ${thumb}
+        <div class="masonry-body">
+          <div class="masonry-title">${a.title}</div>
+          <div class="masonry-price">${a.price>0?'₹'+a.price:'FREE'}</div>
+          <div class="masonry-cat">${a.category_label||''} ${a.subcategory?'· '+a.subcategory:''}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openContactProfile() {
+  const name = document.getElementById('profileName')?.textContent || '';
+  alert(`To contact ${name}, use the messaging system (coming soon) or find them on the marketplace.`);
+}
+function toggleFollow(btn) {
+  const following = btn.classList.toggle('following');
+  btn.textContent = following ? '✓ Following' : '+ Follow';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHECKOUT MODAL
+// ═══════════════════════════════════════════════════════════════
+function openCheckout(asset) {
+  if (typeof asset === 'string') asset = JSON.parse(asset);
+  const overlay = document.getElementById('checkoutOverlay');
+  const thumb   = document.getElementById('checkoutThumb');
+  const title   = document.getElementById('checkoutTitle');
+  const creator = document.getElementById('checkoutCreator');
+  const priceEl = document.getElementById('checkoutPriceDisplay');
+  const action  = document.getElementById('checkoutAction');
+
+  if (thumb)   { thumb.src = asset.preview_url || ''; thumb.style.display = asset.preview_url ? 'block' : 'none'; }
+  if (title)   title.textContent   = asset.title || 'Asset';
+  if (creator) creator.textContent = asset.creator_name ? `by ${asset.creator_name}` : '';
+
+  const price = parseFloat(asset.price) || 0;
+  if (priceEl) {
+    priceEl.textContent  = price > 0 ? `₹${price}` : 'FREE';
+    priceEl.className    = price > 0 ? 'checkout-price-paid' : 'checkout-price-free';
+  }
+
+  if (action) {
+    if (price === 0) {
+      // Free → direct download button
+      action.innerHTML = `
+        <a href="${asset.download_url || asset.preview_url || '#'}" download
+           class="btn-dl-now" style="text-decoration:none;">
+          ⬇ Download Free Asset
+        </a>
+        <div style="font-size:11px;color:var(--text2);text-align:center;margin-top:8px;">No account needed · Always free</div>`;
+    } else {
+      // Paid → coming soon
+      action.innerHTML = `
+        <div class="coming-soon-box">
+          <div class="cs-icon">🔒</div>
+          <div class="cs-title">Payment Coming Soon</div>
+          <div class="cs-sub">UPI / Razorpay integration is in progress.<br>This asset will be available to purchase shortly.</div>
+        </div>`;
+    }
+  }
+  if (overlay) overlay.classList.add('open');
+}
+
+function closeCheckout(e) {
+  if (e.target === document.getElementById('checkoutOverlay')) closeCheckoutDirect();
+}
+function closeCheckoutDirect() {
+  document.getElementById('checkoutOverlay')?.classList.remove('open');
+}
+
+// Wire asset cards in marketplace to open checkout instead of doing nothing
+function assetCardClick(asset) { openCheckout(asset); }
+
+
+// ─── SELL PAGE: SUBCATEGORY DROPDOWN ───────────────────────────
+function onCategoryChange(sel) {
+  const subSel = document.getElementById('subCategory');
+  const val = sel.value;
+  const cat = CATEGORIES.find(c => c.id === val);
+  if (!val || !cat) {
+    subSel.innerHTML = '<option value="">-- Select a category first --</option>';
+    subSel.disabled = true;
+    subSel.style.opacity = '0.45';
+    subSel.style.cursor = 'not-allowed';
+    subSel.style.borderColor = '';
+    return;
+  }
+  subSel.innerHTML = '<option value="">-- Select sub-category --</option>' +
+    cat.subs.map(s => `<option value="${s}">${s}</option>`).join('');
+  subSel.disabled = false;
+  subSel.style.opacity = '1';
+  subSel.style.cursor = 'pointer';
+  subSel.style.borderColor = 'var(--orange)';
+  setTimeout(() => { subSel.style.borderColor = ''; }, 1400);
+}
+
+// ─── INIT ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initAuthListener();   // sets up Supabase auth state watcher
+  renderGrid();
+  renderModalCats('');
+});
+</script>
+</body>
+</html>
